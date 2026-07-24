@@ -1,0 +1,18 @@
+# 落地页部署 - 只追踪网站文件
+*.pyc
+__pycache__/
+*.exe
+*.pkl
+*.csv
+output/
+generated-images/
+ai_quant_framework/
+ai_relay_station/
+crawler_full_site.py
+crawler_xauusd.py
+QQ_9.9.32_260716_x64_01.exe
+*.png
+!docs/images/*.png
+*.jpg
+*.md
+!.gitignore

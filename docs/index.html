@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小刚量化 — 多模型AI量化交易系统 | 三审AI架构，全自动黄金交易</title>
+<meta name="description" content="自研AI量化交易系统，GPT/Claude/Gemini三模型联合看图决策。分析→风控审→持仓监控，无人值守全自动交易。MT5 EA一键接入，不编程也能用。">
+<meta property="og:title" content="小刚量化 — 三审AI架构，全自动黄金交易">
+<meta property="og:description" content="自研AI量化交易系统，GPT/Claude/Gemini三模型联合看图决策。意见一致才下单，不编程也能用。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+  /* Fallback fonts for mainland China: explicit system font stack */
+  body { font-family: 'DM Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+</style>
+<style>
+  :root {
+    --color-primary: #0F172A;
+    --color-on-primary: #FFFFFF;
+    --color-secondary: #1E293B;
+    --color-accent: #F59E0B;
+    --color-accent2: #3B82F6;
+    --color-on-accent: #0F172A;
+    --color-bg: #020617;
+    --color-fg: #F8FAFC;
+    --color-card: #0E1223;
+    --color-card-fg: #F8FAFC;
+    --color-muted: #1A1E2F;
+    --color-muted-fg: #94A3B8;
+    --color-border: #334155;
+    --color-destructive: #EF4444;
+    --color-ring: #0F172A;
+    --color-code-blue: #38BDF8;
+    --color-code-purple: #A78BFA;
+    --color-code-yellow: #FBBF24;
+    --color-code-pink: #F472B6;
+    --font-heading: 'Space Grotesk', system-ui, sans-serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-fg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ========== Navbar ========== */
+  .navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(2,6,23,0.85);
+    border-bottom: 1px solid rgba(51,65,85,0.4);
+    padding: 0 24px;
+  }
+  .navbar-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .navbar-logo {
+    font-family: var(--font-heading);
+    font-size: 1.25rem; font-weight: 700; color: var(--color-fg);
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .navbar-logo .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); animation: pulse-dot 2s ease infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .navbar-links { display: flex; gap: 32px; align-items: center; }
+  .navbar-links a {
+    font-family: var(--font-body); font-size: .9rem; font-weight: 500;
+    color: var(--color-muted-fg); text-decoration: none;
+    transition: color .2s;
+  }
+  .navbar-links a:hover { color: var(--color-fg); }
+  .navbar-cta {
+    font-family: var(--font-heading); font-size: .85rem; font-weight: 600;
+    padding: 8px 20px; border-radius: var(--radius-sm);
+    background: var(--color-accent); color: var(--color-on-accent);
+    text-decoration: none; transition: transform .2s, box-shadow .2s;
+  }
+  .navbar-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(245,158,11,0.35); }
+
+  /* ========== Hero ========== */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 120px 24px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0; opacity: .04;
+    background-image: linear-gradient(rgba(59,130,246,.5) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(59,130,246,.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 70%);
+  }
+  .hero-glow {
+    position: absolute; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(245,158,11,.15) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+    pointer-events: none;
+  }
+  .hero-content { position: relative; z-index: 1; text-align: center; max-width: 800px; }
+  .hero-logo {
+    width: 220px; height: auto;
+    margin: 0 auto 28px;
+    display: block;
+    border-radius: var(--radius-lg);
+    border: 1.5px solid rgba(245,158,11,.25);
+    box-shadow:
+      0 0 30px rgba(245,158,11,.12),
+      0 0 60px rgba(245,158,11,.06),
+      0 8px 40px rgba(0,0,0,.3);
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-body); font-size: .8rem; font-weight: 500;
+    color: var(--color-accent); background: rgba(245,158,11,.1);
+    border: 1px solid rgba(245,158,11,.2); border-radius: 100px;
+    padding: 6px 16px; margin-bottom: 32px;
+  }
+  .hero-badge .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); animation: pulse-dot 2s ease infinite; }
+  .hero h1 {
+    font-family: var(--font-heading); font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  .hero h1 .gradient-text {
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-code-blue) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 1.15rem; color: var(--color-muted-fg); max-width: 560px;
+    margin: 0 auto 40px; line-height: 1.7;
+  }
+  .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    font-family: var(--font-heading); font-size: .95rem; font-weight: 600;
+    padding: 14px 32px; border-radius: var(--radius-md); border: none; cursor: pointer;
+    background: var(--color-accent); color: var(--color-on-accent);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,158,11,0.4); }
+  .btn-secondary {
+    font-family: var(--font-heading); font-size: .95rem; font-weight: 600;
+    padding: 14px 32px; border-radius: var(--radius-md); cursor: pointer;
+    background: rgba(255,255,255,.05); color: var(--color-fg);
+    border: 1px solid var(--color-border); text-decoration: none;
+    transition: background .2s, border-color .2s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
+
+  /* ========== Sections ========== */
+  .section { padding: 100px 24px; }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+  .section-label {
+    font-family: var(--font-heading); font-size: .75rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .1em; color: var(--color-accent);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: var(--font-heading); font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 700; line-height: 1.2; letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: 1.05rem; color: var(--color-muted-fg); max-width: 600px;
+    line-height: 1.7; margin-bottom: 56px;
+  }
+  .section-title.center, .section-desc.center, .section-label.center { text-align: center; margin-left: auto; margin-right: auto; }
+
+  /* ========== Features Grid ========== */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .feature-card {
+    background: var(--color-card); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); padding: 32px;
+    transition: transform .3s, border-color .3s, box-shadow .3s;
+    position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+    opacity: 0; transition: opacity .3s;
+  }
+  .feature-card:hover { transform: translateY(-4px); border-color: rgba(245,158,11,.3); box-shadow: 0 12px 40px rgba(0,0,0,.3); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: var(--radius-md);
+    background: rgba(245,158,11,.1); display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; color: var(--color-accent); font-size: 1.4rem;
+  }
+  .feature-card h3 { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 600; margin-bottom: 10px; }
+  .feature-card p { font-size: .9rem; color: var(--color-muted-fg); line-height: 1.65; }
+
+  /* ========== Pipeline Flow ========== */
+  .pipeline {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    flex-wrap: wrap; padding: 48px 0;
+  }
+  .pipeline-step {
+    background: var(--color-card); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); padding: 32px 24px; text-align: center;
+    min-width: 200px; transition: all .3s;
+  }
+  .pipeline-step:hover { border-color: var(--color-accent); box-shadow: 0 0 30px rgba(245,158,11,.1); }
+  .pipeline-step .step-num {
+    font-family: var(--font-heading); font-size: 2rem; font-weight: 700;
+    color: var(--color-accent); margin-bottom: 8px;
+  }
+  .pipeline-step h4 { font-family: var(--font-heading); font-size: 1rem; margin-bottom: 6px; }
+  .pipeline-step p { font-size: .8rem; color: var(--color-muted-fg); }
+  .pipeline-arrow {
+    font-size: 1.5rem; color: var(--color-muted-fg);
+    font-family: var(--font-heading);
+  }
+
+  /* ========== Stats ========== */
+  .stats-row {
+    display: flex; justify-content: center; gap: 64px; flex-wrap: wrap;
+    padding: 48px 0;
+  }
+  .stat-item { text-align: center; }
+  .stat-number {
+    font-family: var(--font-heading); font-size: 2.5rem; font-weight: 700;
+    color: var(--color-accent); line-height: 1;
+  }
+  .stat-label { font-size: .85rem; color: var(--color-muted-fg); margin-top: 8px; }
+
+  /* ========== Architecture Section ========== */
+  .arch-section { background: rgba(15,23,42,.5); }
+  .arch-diagram {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px; max-width: 1000px; margin: 0 auto;
+  }
+  .arch-box {
+    background: var(--color-card); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); padding: 32px;
+    text-align: center;
+  }
+  .arch-box .arch-icon {
+    font-size: 2.5rem; margin-bottom: 16px;
+  }
+  .arch-box h4 { font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 8px; }
+  .arch-box p { font-size: .85rem; color: var(--color-muted-fg); line-height: 1.6; }
+  .arch-box.highlight {
+    border-color: rgba(245,158,11,.4);
+    background: linear-gradient(180deg, rgba(245,158,11,.05) 0%, var(--color-card) 30%);
+  }
+
+  /* ========== Trust ========== */
+  .trust-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .trust-card {
+    background: var(--color-card); border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl); padding: 40px 32px;
+    text-align: center; transition: transform .3s;
+  }
+  .trust-card:hover { transform: translateY(-4px); }
+  .trust-card .trust-num {
+    font-family: var(--font-heading); font-size: 3rem; font-weight: 700;
+    color: var(--color-accent); margin-bottom: 12px;
+  }
+  .trust-card h4 { font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 8px; }
+  .trust-card p { font-size: .85rem; color: var(--color-muted-fg); line-height: 1.6; }
+
+  /* ========== CTA ========== */
+  .cta-section {
+    text-align: center; padding: 120px 24px;
+    background: linear-gradient(180deg, transparent 0%, rgba(245,158,11,.03) 100%);
+  }
+  .cta-section h2 {
+    font-family: var(--font-heading); font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 700; margin-bottom: 16px;
+  }
+  .cta-section p {
+    color: var(--color-muted-fg); max-width: 500px; margin: 0 auto 40px;
+  }
+  .cta-contacts {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .contact-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 24px; background: rgba(255,255,255,.05);
+    border-radius: var(--radius-md); border: 1px solid var(--color-border);
+    color: var(--color-muted-fg); font-size: .9rem;
+    position: relative; cursor: pointer;
+  }
+  .qr-popup {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all .25s ease;
+    pointer-events: none;
+    z-index: 10;
+    width: 174px;
+    text-align: center;
+  }
+  .qr-popup img {
+    width: 150px;
+    height: 150px;
+    border-radius: var(--radius-sm);
+    display: block;
+    margin: 0 auto;
+  }
+  .qr-popup .qr-label {
+    font-size: .75rem;
+    color: var(--color-muted-fg);
+    margin-top: 8px;
+  }
+  .contact-item:hover .qr-popup,
+  .contact-item:active .qr-popup,
+  .contact-item:focus-within .qr-popup,
+  .contact-item.tap-active .qr-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+  .qr-popup::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--color-border);
+  }
+
+  /* ========== Footer ========== */
+  .footer {
+    border-top: 1px solid var(--color-border);
+    padding: 48px 24px; text-align: center;
+  }
+  .footer p { font-size: .85rem; color: var(--color-muted-fg); }
+
+  /* ========== Responsive ========== */
+  /* ========== Mobile Nav ========== */
+  .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--color-fg); margin: 5px 0; border-radius: 2px; transition: .3s; }
+  .nav-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+    @media (max-width: 768px) {
+    .navbar-cta { display: none !important; }
+    .nav-hamburger { display: block; }
+    .navbar-links {
+      position: fixed; top: 64px; left: 0; right: 0;
+      background: rgba(2,6,23,.95); backdrop-filter: blur(20px);
+      flex-direction: column; gap: 0; padding: 12px 0;
+      border-bottom: 1px solid var(--color-border);
+      display: none;
+    }
+    .navbar-links.open { display: flex; }
+    .navbar-links a { padding: 14px 24px; font-size: 1.05rem; }
+    .hero h1 { font-size: 2rem; }
+    .stats-row { gap: 32px; }
+    .stats-row .stat-number { font-size: 1.8rem; }
+    .section { padding: 64px 24px; }
+    .features-grid, .trust-grid { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .pipeline-arrow { transform: rotate(90deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="#" class="navbar-logo">
+      <span class="dot"></span> 小刚量化
+    </a>
+    <div class="navbar-links">
+      <a href="#features">核心能力</a>
+      <a href="#architecture">三审架构</a>
+      <a href="#trust">信任与数据</a>
+      <a href="#faq">常见问题</a>
+      <a href="#cta">获取授权</a>
+    </div>
+    <button class="nav-hamburger" onclick="this.classList.toggle('open');document.querySelector('.navbar-links').classList.toggle('open')" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="#cta" class="navbar-cta desktop-only">联系作者</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <img src="./images/brand-logo.png" alt="小刚量化" class="hero-logo">
+    <div class="hero-badge">
+      <span class="live-dot"></span> GPT-4o · Claude · Gemini — 三模型联合决策，全自动交易
+    </div>
+    <h1>三个AI同时看图<br><span class="gradient-text">意见一致才下单</span></h1>
+    <p>自主研发三审AI量化交易系统。AI-1 分析行情 → AI-2 风控审核（一票否决权）→ AI-3 持仓监控。接入MT5全自动运行，不编程也能用。独立技术工具，不推荐任何券商。</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">获取免费试用</a>
+      <a href="#architecture" class="btn-secondary">了解三审架构 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section style="padding: 0 24px 48px;">
+  <div class="section-inner">
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-number">3+</div>
+        <div class="stat-label">大模型并联</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">3层</div>
+        <div class="stat-label">AI投票决策</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">0</div>
+        <div class="stat-label">人工干预交易</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">MT5</div>
+        <div class="stat-label">全平台兼容</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-label center">核心能力</div>
+    <h2 class="section-title center">你的AI交易团队，24小时不休息</h2>
+    <p class="section-desc center">不是单一模型赌博，而是多个顶级AI模型组成的"交易委员会"，只有意见一致时才会下单。</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F4CA;</div>
+        <h3>多模型联合分析</h3>
+        <p>GPT-4o、Claude、Gemini 三大模型同时解读同一张K线图。多头判断、空头信号、震荡识别——比单一模型更全面的市场视角。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x26D4;</div>
+        <h3>AI-2 一票否决权</h3>
+        <p>AI-1 分析完信号后，AI-2 作为独立风控官进行二次复核。如果风险/回报不达标、或与趋势背离，直接否决——即使AI-1强烈看多也不执行。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F4E1;</div>
+        <h3>AI-3 持仓实时监控</h3>
+        <p>第三层AI不间断监控持仓状态，动态调整止损止盈、分批止盈、移动保本。不是设好就不管，而是全程有人盯着。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F6E0;</div>
+        <h3>零编程可运行</h3>
+        <p>内置多种预设策略，一键启动。懂编程的用户可以完全自定义策略、接入自己的Prompt和模型组合。真正从零基础到专业级都适用。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F4C8;</div>
+        <h3>Walk-Forward + 蒙特卡洛</h3>
+        <p>不是简单回测画曲线。内置Walk-Forward优化引擎和Monte Carlo模拟器，帮你理解策略在不同市场状态下的真实表现，而非过拟合的完美曲线。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F6E1;</div>
+        <h3>多层风控体系</h3>
+        <p>最大回撤熔断、波动率动态仓位、阶梯式止损、每日盈亏上限——不是"赌方向"，而是"管风险"。先活着，再赚钱。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture Pipeline -->
+<section class="section arch-section" id="architecture">
+  <div class="section-inner">
+    <div class="section-label center">三审AI架构</div>
+    <h2 class="section-title center">三个AI组成"交易委员会"</h2>
+    <p class="section-desc center">每笔交易必须经过三位独立AI的一一审核。意见一致→下单。意见分歧→放弃。这从根本上解决了单模型AI交易的"幻觉下单"问题。</p>
+
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="step-num">01</div>
+        <h4>AI-1 看图分析</h4>
+        <p>GPT-4o / Claude / Gemini<br>多周期K线联合解读<br>趋势·支撑·形态·信号</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-num">02</div>
+        <h4>AI-2 风控审核</h4>
+        <p>独立风控模型<br>检验风险回报比<br>一票否决权</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step highlight">
+        <div class="step-num">03</div>
+        <h4>AI-3 执行监控</h4>
+        <p>订单执行后全程追踪<br>动态止损·分批止盈<br>实时风控调整</p>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step">
+        <div class="step-num">✅</div>
+        <h4>MT5 自动下单</h4>
+        <p>XAUUSD 黄金直连<br>全自动无人值守<br>每笔订单有据可查</p>
+      </div>
+    </div>
+
+    <div class="arch-diagram" style="margin-top: 48px;">
+      <div class="arch-box highlight">
+        <div class="arch-icon">🧠</div>
+        <h4>为什么需要三个AI？</h4>
+        <p>单个AI的分析结果就像一个人的观点——可能有偏见、可能"幻觉"、可能看漏关键信号。三个AI从不同角度独立分析，只有真正的交易机会才能通过全部审核。这就像三个老交易员同时看盘，而不是一个人说了算。</p>
+      </div>
+      <div class="arch-box">
+        <div class="arch-icon">📊</div>
+        <h4>真实案例：被否决的信号</h4>
+        <p>AI-1 看到强势突破信号建议追多，AI-2 发现R:R仅1:0.3且紧邻上方强阻力位→一票否决。行情随后冲高回落，追多者被套。这就是三审的价值。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust Section -->
+<section class="section" id="trust">
+  <div class="section-inner">
+    <div class="section-label center">信任与数据</div>
+    <h2 class="section-title center">不是"黑箱"，而是透明工具</h2>
+    <p class="section-desc center">我们定位为独立技术工具提供方——不推荐任何券商、不代客理财、不承诺收益。每一笔交易决策都有AI留下的完整分析日志。</p>
+
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="trust-num">🔍</div>
+        <h4>每笔交易可追溯</h4>
+        <p>AI-1的分析结论、AI-2的审核意见、AI-3的监控日志——完整的决策链路，不是"AI说买就买"。</p>
+      </div>
+      <div class="trust-card">
+        <div class="trust-num">🛡️</div>
+        <h4>独立技术工具</h4>
+        <p>不代理任何券商、不接触资金、不代客理财。我们只提供技术工具，交易决策和资金安全始终由你掌控。</p>
+      </div>
+      <div class="trust-card">
+        <div class="trust-num">⚠️</div>
+        <h4>风险透明告知</h4>
+        <p>AI交易不是印钞机。市场永远有风险。我们只会告诉你这套工具怎么做决策，不会告诉你"稳赚不赔"——因为没有人能做到。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section arch-section" id="faq">
+  <div class="section-inner">
+    <div class="section-label center">常见问题</div>
+    <h2 class="section-title center">你可能想问的</h2>
+    <p class="section-desc center"></p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>需要会编程吗？</h3>
+        <p>不需要。内置预设策略和模型配置，开箱即用。如果你懂编程，可以深度自定义Prompt、策略逻辑和模型组合。</p>
+      </div>
+      <div class="feature-card">
+        <h3>支持哪些交易品种？</h3>
+        <p>当前主攻 XAUUSD（黄金）。黄金趋势性强、流动性好，是AI量化交易最适合的品种之一。更多品种持续扩展中。</p>
+      </div>
+      <div class="feature-card">
+        <h3>AI调用的Token成本？</h3>
+        <p>每笔分析约消耗数百Token，月成本通常在几十元以内。我们还提供独立的API中转站服务，比官方价格更低。</p>
+      </div>
+      <div class="feature-card">
+        <h3>和市面上的EA有什么区别？</h3>
+        <p>传统EA是固定规则的if-else机械执行。我们是让AI真正"看K线图"做分析决策，理解市场语境而非死守参数。</p>
+      </div>
+      <div class="feature-card">
+        <h3>可以在家电脑上跑吗？</h3>
+        <p>可以。只要电脑开着MT5就能运行。建议使用VPS实现24小时不间断运行，我们可提供一键部署方案。</p>
+      </div>
+      <div class="feature-card">
+        <h3>效果怎么样？</h3>
+        <p>我们不承诺收益。AI的决策质量取决于市场状态和模型能力。建议先通过内置回测+Walk-Forward+Monte Carlo充分验证后再小额实盘试用。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <h2>准备好让AI帮你分析行情了吗？</h2>
+  <p>免费试用 · 1对1远程指导安装 · 不编程也能用</p>
+  <p style="color: var(--color-accent); font-size: 0.85rem; margin-bottom: 24px;">⚠️ 投资有风险，AI分析仅供参考，不承诺收益。过往表现不代表未来结果。</p>
+  <a href="#cta" class="btn-primary" style="font-size: 1.1rem; padding: 16px 48px;">联系作者获取授权 →</a>
+  <div class="cta-contacts">
+    <div class="contact-item">
+      📱 QQ: 80625640
+      <div class="qr-popup">
+        <img src="./images/qq-qr.png" alt="QQ二维码">
+        <div class="qr-label">扫码添加QQ</div>
+      </div>
+    </div>
+    <div class="contact-item">
+      ✈️ Telegram: @ArlonQ
+      <div class="qr-popup">
+        <img src="./images/telegram-qr.png" alt="Telegram二维码">
+        <div class="qr-label">扫码添加Telegram</div>
+      </div>
+    </div>
+    <div class="contact-item">📧 Email: lixiaofan09@gmail.com</div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="section-inner">
+    <p>小刚量化 — 独立AI量化交易技术工具。我们不推荐任何券商、不代客理财、不承诺收益。AI输出仅供技术参考，不构成投资建议。交易有风险，盈亏自负。</p>
+    <p style="margin-top: 12px; color: var(--color-muted-fg);">GPT / Claude / Gemini 为各自所属公司的注册商标。</p>
+    <p style="margin-top: 16px;">&copy; 2026 小刚量化. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+/* Mobile QR code tap support */
+document.querySelectorAll('.contact-item').forEach(function(el) {
+  el.addEventListener('click', function() {
+    this.classList.toggle('tap-active');
+  });
+});
+</script>
+
+</body>
+</html>
