@@ -14,5 +14,6 @@ QQ_9.9.32_260716_x64_01.exe
 *.png
 !docs/images/*.png
 *.jpg
+!docs/images/*.jpg
 *.md
 !.gitignore
