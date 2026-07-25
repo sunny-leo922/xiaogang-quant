@@ -1,0 +1,199 @@
+# ============================================================
+# AIQuant Pro 配置文件
+# 超越 xauusd.team 的 AI 量化交易研究框架
+# ============================================================
+
+# --- MT5 连接配置 ---
+mt5:
+  mode: demo           # demo / real
+  account: ${MT5_ACCOUNT}
+  password: ${MT5_PASSWORD}
+  server: ${MT5_SERVER:-ECMarketsLtd-Demo}
+  terminal_path: ${MT5_TERMINAL_PATH}
+  symbol: "XAUUSD.n"
+  deviation_points: 10           # 普通行情偏差容忍点数
+  deviation_volatile: 30         # 高波动行情（非农等）偏差容忍点数
+  spread_points: 30              # 正常点差（用于模拟/回退）
+  point_size: 0.01               # 最小价格变动单位
+  symbols_extra:       # 额外品种
+    - "EURUSD.n"
+    - "GBPUSD.n"
+
+  # 品种规格配置 (合约乘数等)
+  symbol_specs:
+    XAUUSD:
+      contract_multiplier: 100    # 1标准手=100盎司
+      lot_size_min: 0.01          # 最小交易手数
+      lot_size_step: 0.01         # 最小步长
+    XAUUSD.n:
+      contract_multiplier: 100
+      lot_size_min: 0.01
+      lot_size_step: 0.01
+    EURUSD:
+      contract_multiplier: 100000 # 1标准手=100000欧元
+      lot_size_min: 0.01
+      lot_size_step: 0.01
+    EURUSD.n:
+      contract_multiplier: 100000
+      lot_size_min: 0.01
+      lot_size_step: 0.01
+    GBPUSD:
+      contract_multiplier: 100000
+      lot_size_min: 0.01
+      lot_size_step: 0.01
+    GBPUSD.n:
+      contract_multiplier: 100000
+      lot_size_min: 0.01
+      lot_size_step: 0.01
+
+# --- 数据引擎 ---
+data:
+  cache_dir: "data/cache"
+  timeframes:
+    - "M1"
+    - "M5"
+    - "M15"
+    - "H1"
+    - "H4"
+    - "D1"
+  max_bars: 5000
+  update_interval_sec: 60
+
+# --- AI 模型配置 ---
+ai:
+  # === 自建多模型中转站 (一键接入所有模型) ===
+  relay_station:
+    enabled: true
+    api_base: "http://127.0.0.1:9000/v1"
+    api_key_env: "RELAY_STATION_KEY"
+    # 配置上游API Key后通过中转站路由调用（设环境变量: DEEPSEEK_API_KEY / OPENAI_API_KEY 等）
+    # 运行方式: cd ai_relay_station && python server.py
+
+  # 多模型并行投票列表 (统一通过中转站调用)
+  # 当前可用: DeepSeek (deepseek-chat / deepseek-reasoner)
+  # 待接入: 设置 OPENAI_API_KEY / ANTHROPIC_API_KEY / GEMINI_API_KEY 后即可启用
+  models:
+    - name: "ds-v3-analyst"
+      api_base: "http://127.0.0.1:9000/v1"
+      api_key_env: "RELAY_STATION_KEY"
+      model_id: "deepseek-chat"
+      max_tokens: 4096
+      temperature: 0.3
+      weight: 1.0
+
+    - name: "ds-v3-skeptic"
+      api_base: "http://127.0.0.1:9000/v1"
+      api_key_env: "RELAY_STATION_KEY"
+      model_id: "deepseek-chat"
+      max_tokens: 4096
+      temperature: 0.7          # 高温度 = 更发散的观点
+      weight: 1.0
+
+    - name: "ds-reasoner"
+      api_base: "http://127.0.0.1:9000/v1"
+      api_key_env: "RELAY_STATION_KEY"
+      model_id: "deepseek-reasoner"
+      max_tokens: 4096
+      temperature: 0.3
+      weight: 1.0
+
+    - name: "ds-v3-conservative"
+      api_base: "http://127.0.0.1:9000/v1"
+      api_key_env: "RELAY_STATION_KEY"
+      model_id: "deepseek-chat"
+      max_tokens: 4096
+      temperature: 0.1          # 低温度 = 更保守保守
+      weight: 1.0
+
+  # 投票融合参数
+  ensemble:
+    min_models_agree: 2       # 最少同意模型数
+    min_confidence: 60        # 最低加权置信度
+    hold_on_conflict: true    # 平局时输出HOLD
+    require_unanimous_hold: false
+
+  # 双周期配置
+  chart_configs:
+    scalp:                    # 短线剥头皮
+      primary: "M1"
+      secondary: "M5"
+      ema_period: 21
+    swing:                    # 波段
+      primary: "M15"
+      secondary: "H1"
+      ema_period: 55
+
+  # 图表截图
+  chart:
+    width: 1200
+    height: 800
+    background: "#1a1a2e"
+    candle_up: "#26a69a"
+    candle_down: "#ef5350"
+    ema_color: "#ff4444"
+    grid_color: "#2a2a3e"
+
+# --- 风控参数 ---
+risk:
+  # 仓位管理
+  position:
+    method: "kelly"            # kelly / fixed_fraction / volatility_target
+    kelly_fraction: 0.25       # Kelly分数的25%
+    fixed_risk_percent: 0.01   # 固定每笔风险1%
+    volatility_target: 0.15    # 年化波动率目标15%
+    
+  # 最大限制
+  limits:
+    max_position_pct: 0.05     # 单笔最大仓位5%
+    max_daily_loss: 0.03       # 单日最大亏损3%
+    max_drawdown: 0.20         # 最大回撤20%触发熔断
+    max_correlated_exposure: 0.08  # 关联品种总敞口8%
+    
+  # 止损参数
+  stops:
+    atr_multiplier: 2.0        # ATR倍数
+    atr_period: 14
+    min_stop_points: 50        # 最小止损点数 (XAUUSD: 50点=5美元)
+    max_stop_points: 300
+    trailing_activation: 1.5   # 盈利达1.5倍风险时启动移动止损
+    breakeven_activation: 0.8  # 盈利达0.8倍风险时移至保本
+    
+  # 盈亏比要求
+  rr_ratio:
+    trend_min: 1.5
+    counter_trend_min: 2.0
+
+# --- 市场状态识别 ---
+regime:
+  adx_threshold_trend: 25
+  atr_percentile_high: 80
+  atr_percentile_low: 20
+  lookback: 100
+
+# --- 回测 ---
+backtest:
+  initial_capital: 10000
+  commission_pct: 0.05       # XAUUSD手续费约0.05% (按成交额)
+  spread_points: 3           # 点差
+  slippage_points: 2         # 滑点
+  swap_long_pct: -0.015      # 多头隔夜利息(年率)
+  swap_short_pct: 0.02       # 空头隔夜利息(年率)
+  walk_forward:
+    train_pct: 0.7
+    test_pct: 0.3
+    step_size_pct: 0.1
+  monte_carlo:
+    simulations: 2000
+    confidence_level: 0.95
+
+# --- Dashboard ---
+dashboard:
+  host: "127.0.0.1"
+  port: 8080
+  auto_open: true
+
+# --- 日志 ---
+logging:
+  level: "INFO"
+  file: "data/logs/ai_quant.log"
+  max_size_mb: 50
