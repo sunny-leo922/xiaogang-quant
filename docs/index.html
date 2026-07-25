@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN" class="dark" data-lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>小刚量化 · 金蟾AI交易 — 多模型AI量化交易系统 | 三审架构，全自动黄金交易</title>
-<meta name="description" content="自研AI量化交易系统，GPT-5.6/Claude/Sonnet/Gemini三模型联合看图决策。分析→风控审→持仓监控，无人值守全自动交易。MT5 EA一键接入，不编程也能用。">
-<meta property="og:title" content="小刚量化-金蟾AI交易 — 三审AI架构，全自动黄金交易">
-<meta property="og:description" content="自研AI量化交易系统，GPT-5.6/Claude Sonnet 5/Gemini 3.6三模型联合看图决策。意见一致才下单，不编程也能用。">
+<title data-i18n-attr="meta.title">小刚量化 · 金蟾AI交易 — 多模型AI量化交易系统 | 三审架构，全自动黄金交易</title>
+<meta name="description" data-i18n-attr="meta.desc" content="自研AI量化交易系统，GPT-5.6/Claude/Sonnet/Gemini三模型联合看图决策。分析→风控审→持仓监控，无人值守全自动交易。MT5 EA一键接入，不编程也能用。">
+<meta property="og:title" data-i18n-attr="meta.ogTitle" content="小刚量化-金蟾AI交易 — 三审AI架构，全自动黄金交易">
+<meta property="og:description" data-i18n-attr="meta.ogDesc" content="自研AI量化交易系统，GPT-5.6/Claude Sonnet 5/Gemini 3.6三模型联合看图决策。意见一致才下单，不编程也能用。">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="zh_CN">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='14' r='10' fill='%23F59E0B'/><circle cx='12' cy='11' r='2' fill='%23020617'/><circle cx='20' cy='11' r='2' fill='%23020617'/><path d='M10 18 Q16 22 22 18' fill='none' stroke='%23020617' stroke-width='2'/></svg>">
@@ -80,6 +80,18 @@
     background:var(--gold);color:#000;transition:transform .15s,box-shadow .15s;
   }
   .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px var(--gold-soft)}
+  /* Lang Switcher */
+  .lang-switch{
+    display:flex;align-items:center;gap:0;border:1px solid var(--border);
+    border-radius:8px;overflow:hidden;margin-right:4px;
+  }
+  .lang-switch button{
+    background:transparent;border:none;color:var(--fg-dim);font-size:.78rem;
+    font-weight:500;padding:5px 11px;cursor:pointer;transition:all .2s;
+    font-family:var(--font-body);
+  }
+  .lang-switch button.active{background:var(--gold);color:#000;font-weight:600}
+  .lang-switch button:hover:not(.active){color:var(--fg-muted);background:rgba(255,255,255,.04)}
   .nav-hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px}
   .nav-hamburger span{display:block;width:22px;height:2px;background:var(--fg);margin:5px 0;border-radius:2px;transition:.25s}
   .nav-hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
@@ -237,31 +249,6 @@
 .arch-icon{width:48px;height:48px;border-radius:50%;margin:0 auto 16px;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;color:var(--gold)}
 .arch-icon svg{width:24px;height:24px}
 
-  /* ── Pricing Toggle ── */
-  .pricing-toggle{
-    display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;
-  }
-  .pricing-toggle .toggle-label{
-    font-size:.88rem;font-weight:500;color:var(--fg-dim);cursor:pointer;transition:color .25s;
-  }
-  .pricing-toggle .toggle-label.active{color:var(--fg);font-weight:600}
-  .pricing-toggle .toggle-switch{
-    position:relative;width:50px;height:28px;background:var(--border);
-    border-radius:14px;border:none;cursor:pointer;transition:background .3s;padding:0;
-  }
-  .pricing-toggle .toggle-switch.yearly{background:var(--gold)}
-  .pricing-toggle .toggle-thumb{
-    position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;
-    border-radius:50%;transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,.2);
-  }
-  .pricing-toggle .toggle-switch.yearly .toggle-thumb{transform:translateX(22px)}
-  .pricing-toggle .toggle-save{
-    font-size:.78rem;font-weight:600;color:var(--gold);background:rgba(245,158,11,.1);
-    padding:3px 10px;border-radius:100px;margin-left:4px;opacity:0;transform:translateX(-6px);
-    transition:opacity .3s,transform .3s;pointer-events:none;
-  }
-  .pricing-toggle .toggle-save.show{opacity:1;transform:translateX(0)}
-
   /* ── Pricing ── */
   .price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;align-items:stretch}
   .price-card{
@@ -277,12 +264,12 @@
   .price-card.featured::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.75;box-shadow:0 0 10px rgba(245,158,11,.25)}
   .price-card.featured:hover{box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 28px rgba(245,158,11,.08)}
   .price-card.featured::after{
-    content:'最受欢迎';position:absolute;top:14px;right:14px;
+    content:attr(data-badge);position:absolute;top:14px;right:14px;
     font-size:.72rem;font-weight:600;color:#000;background:var(--gold);
     padding:4px 12px;border-radius:100px;
   }
   .price-card.featured.yearly-best::after{
-    content:'最划算';position:absolute;top:14px;right:14px;
+    content:attr(data-badge);position:absolute;top:14px;right:14px;
     font-size:.72rem;font-weight:600;color:#000;background:var(--gold);
     padding:4px 12px;border-radius:100px;
   }
@@ -417,18 +404,22 @@
 <!-- ═══════════ NAV ═══════════ -->
 <nav class="nav">
   <div class="nav-inner">
-    <a href="#" class="nav-brand"><span class="dot"></span>小刚量化</a>
+    <a href="#" class="nav-brand"><span class="dot"></span><span data-i18n="nav.brand">小刚量化</span></a>
     <div class="nav-links">
-      <a href="#features">核心能力</a>
-      <a href="#architecture">三审架构</a>
-      <a href="#pricing">定价方案</a>
-      <a href="#faq">常见问题</a>
-      <a href="#cta">获取授权</a>
+      <a href="#features" data-i18n="nav.features">核心能力</a>
+      <a href="#architecture" data-i18n="nav.architecture">三审架构</a>
+      <a href="#pricing" data-i18n="nav.pricing">定价方案</a>
+      <a href="#faq" data-i18n="nav.faq">常见问题</a>
+      <a href="#cta" data-i18n="nav.cta">获取授权</a>
     </div>
     <button class="nav-hamburger" onclick="this.classList.toggle('open');document.querySelector('.nav-links').classList.toggle('open')" aria-label="菜单">
       <span></span><span></span><span></span>
     </button>
-    <a href="#pricing" class="nav-cta">开始使用</a>
+    <div class="lang-switch" id="langSwitch">
+      <button data-lang="zh" class="active" onclick="setLang('zh')">中</button>
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="#pricing" class="nav-cta" data-i18n="nav.start">开始使用</a>
   </div>
 </nav>
 
@@ -440,72 +431,72 @@
   <div class="hero-content">
     <img src="./images/hero-logo.jpg" alt="小刚量化" class="hero-logo">
     <div class="hero-badge">
-      <span class="live-dot"></span> GPT-5.6 · Claude Sonnet 5 · Gemini 3.6 — 全自动交易
+      <span class="live-dot"></span> <span data-i18n="hero.badge">GPT-5.6 · Claude Sonnet 5 · Gemini 3.6 — 全自动交易</span>
     </div>
-    <h1>三个AI同时看图<br><span class="grad">意见一致才下单</span></h1>
-    <p>自研三审AI量化交易系统。AI-1 分析行情 → AI-2 风控审核（一票否决权）→ AI-3 持仓监控。接入MT5全自动运行，不编程也能用。独立技术工具，不推荐任何券商。</p>
+    <h1><span data-i18n="hero.h1_1">三个AI同时看图</span><br><span class="grad" data-i18n="hero.h1_2">意见一致才下单</span></h1>
+    <p data-i18n="hero.desc">自研三审AI量化交易系统。AI-1 分析行情 → AI-2 风控审核（一票否决权）→ AI-3 持仓监控。接入MT5全自动运行，不编程也能用。独立技术工具，不推荐任何券商。</p>
     <div class="hero-actions">
-      <a href="#pricing" class="btn btn-gold">查看定价方案</a>
-      <a href="#architecture" class="btn btn-ghost">了解三审架构 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg></a>
+      <a href="#pricing" class="btn btn-gold" data-i18n="hero.btn_pricing">查看定价方案</a>
+      <a href="#architecture" class="btn btn-ghost"><span data-i18n="hero.btn_arch">了解三审架构</span> <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg></a>
     </div>
   </div>
   <div class="stats-row">
-    <div class="stat"><div class="num">3+</div><div class="lbl">大模型并联分析</div></div>
-    <div class="stat"><div class="num">3层</div><div class="lbl">AI投票决策机制</div></div>
-    <div class="stat"><div class="num">0</div><div class="lbl">人工干预交易</div></div>
-    <div class="stat"><div class="num">MT5</div><div class="lbl">全平台全自动</div></div>
+    <div class="stat"><div class="num" data-i18n="hero.stat_num1">3+</div><div class="lbl" data-i18n="hero.stat1">大模型并联分析</div></div>
+    <div class="stat"><div class="num" data-i18n="hero.stat_num2">3层</div><div class="lbl" data-i18n="hero.stat2">AI投票决策机制</div></div>
+    <div class="stat"><div class="num" data-i18n="hero.stat_num3">0</div><div class="lbl" data-i18n="hero.stat3">人工干预交易</div></div>
+    <div class="stat"><div class="num" data-i18n="hero.stat_num4">MT5</div><div class="lbl" data-i18n="hero.stat4">全平台全自动</div></div>
   </div>
 </section>
 
 <!-- ═══════════ FEATURES ═══════════ -->
 <section class="sec" id="features">
   <div class="sec-inner">
-    <div class="sec-label tac">核心能力</div>
-    <h2 class="sec-title tac">你的AI交易团队，24小时不休息</h2>
-    <p class="sec-desc tac">不是单一模型赌博，而是多个顶级AI模型组成的"交易委员会"，只有意见一致时才会下单。</p>
+    <div class="sec-label tac" data-i18n="features.label">核心能力</div>
+    <h2 class="sec-title tac" data-i18n="features.title">你的AI交易团队，24小时不休息</h2>
+    <p class="sec-desc tac" data-i18n="features.desc">不是单一模型赌博，而是多个顶级AI模型组成的"交易委员会"，只有意见一致时才会下单。</p>
 
     <div class="grid2 reveal">
       <div class="card">
         <div class="card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21H3V3"/><path d="M3 14l5-5 4 4 7-7"/><circle cx="19" cy="3" r="2"/></svg>
         </div>
-        <h3>多模型联合分析</h3>
-        <p>GPT-5.6、Claude Sonnet 5、Gemini 3.6 Flash 三大顶尖模型同时解读同一张K线图。多头判断、空头信号、震荡识别——比单一模型更全面的市场视角。</p>
+        <h3 data-i18n="features.f1_title">多模型联合分析</h3>
+        <p data-i18n="features.f1_desc">GPT-5.6、Claude Sonnet 5、Gemini 3.6 Flash 三大顶尖模型同时解读同一张K线图。多头判断、空头信号、震荡识别——比单一模型更全面的市场视角。</p>
       </div>
       <div class="card">
         <div class="card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2C20 17.5 12 22 12 22z"/><path d="M10 10h.01M14 10h.01"/><path d="M9 14l1.5 1.5L10 17l2-1.5L14 17l-.5-1.5L15 14"/></svg>
         </div>
-        <h3>AI-2 一票否决权</h3>
-        <p>AI-1 分析完信号后，AI-2 作为独立风控官进行二次复核。如果风险回报不达标或与趋势背离，直接否决执行——即使AI-1强烈看多。</p>
+        <h3 data-i18n="features.f2_title">AI-2 一票否决权</h3>
+        <p data-i18n="features.f2_desc">AI-1 分析完信号后，AI-2 作为独立风控官进行二次复核。如果风险回报不达标或与趋势背离，直接否决执行——即使AI-1强烈看多。</p>
       </div>
       <div class="card">
         <div class="card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a5 5 0 110-10 5 5 0 010 10z"/><path d="M8 15l-3 6h14l-3-6"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/></svg>
         </div>
-        <h3>AI-3 持仓实时监控</h3>
-        <p>第三层AI不间断监控持仓状态，动态调整止损止盈、分批止盈、移动保本。不是设好就不管，而是全程有人盯着。</p>
+        <h3 data-i18n="features.f3_title">AI-3 持仓实时监控</h3>
+        <p data-i18n="features.f3_desc">第三层AI不间断监控持仓状态，动态调整止损止盈、分批止盈、移动保本。不是设好就不管，而是全程有人盯着。</p>
       </div>
       <div class="card">
         <div class="card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
         </div>
-        <h3>零编程可运行</h3>
-        <p>内置多种预设策略，一键启动。懂编程的用户可以完全自定义策略、接入自己的Prompt和模型组合。从零基础到专业级都适用。</p>
+        <h3 data-i18n="features.f4_title">零编程可运行</h3>
+        <p data-i18n="features.f4_desc">内置多种预设策略，一键启动。懂编程的用户可以完全自定义策略、接入自己的Prompt和模型组合。从零基础到专业级都适用。</p>
       </div>
       <div class="card">
         <div class="card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
         </div>
-        <h3>Walk-Forward + 蒙特卡洛</h3>
-        <p>不是简单回测画曲线。内置Walk-Forward优化引擎和Monte Carlo模拟器，帮你理解策略在不同市场状态下的真实表现，杜绝过拟合。</p>
+        <h3 data-i18n="features.f5_title">Walk-Forward + 蒙特卡洛</h3>
+        <p data-i18n="features.f5_desc">不是简单回测画曲线。内置Walk-Forward优化引擎和Monte Carlo模拟器，帮你理解策略在不同市场状态下的真实表现，杜绝过拟合。</p>
       </div>
       <div class="card">
         <div class="card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </div>
-        <h3>多层风控体系</h3>
-        <p>最大回撤熔断、波动率动态仓位、阶梯式止损、每日盈亏上限——不是"赌方向"，而是"管风险"。先活着，再赚钱。</p>
+        <h3 data-i18n="features.f6_title">多层风控体系</h3>
+        <p data-i18n="features.f6_desc">最大回撤熔断、波动率动态仓位、阶梯式止损、每日盈亏上限——不是"赌方向"，而是"管风险"。先活着，再赚钱。</p>
       </div>
     </div>
   </div>
@@ -514,35 +505,35 @@
 <!-- ═══════════ ARCHITECTURE ═══════════ -->
 <section class="sec sec-accent" id="architecture">
   <div class="sec-inner">
-    <div class="sec-label tac">三审AI架构</div>
-    <h2 class="sec-title tac">三个AI组成"交易委员会"</h2>
-    <p class="sec-desc tac">每笔交易必须经过三位独立AI一一审核。意见一致→下单，意见分歧→放弃。从根本上解决单模型AI的"幻觉下单"问题。</p>
+    <div class="sec-label tac" data-i18n="arch.label">三审AI架构</div>
+    <h2 class="sec-title tac" data-i18n="arch.title">三个AI组成"交易委员会"</h2>
+    <p class="sec-desc tac" data-i18n="arch.desc">每笔交易必须经过三位独立AI一一审核。意见一致→下单，意见分歧→放弃。从根本上解决单模型AI的"幻觉下单"问题。</p>
 
     <div class="pipeline reveal">
       <div class="step">
         <div class="n">01</div>
-        <h4>AI-1 看图分析</h4>
-        <p>GPT-5.6 / Claude / Gemini<br>多周期K线联合解读<br>趋势·支撑·形态·信号</p>
+        <h4 data-i18n="arch.s1_title">AI-1 看图分析</h4>
+        <p data-i18n="arch.s1_desc">GPT-5.6 / Claude / Gemini<br>多周期K线联合解读<br>趋势·支撑·形态·信号</p>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="step">
         <div class="n">02</div>
-        <h4>AI-2 风控审核</h4>
-        <p>独立风控模型<br>检验风险回报比<br>一票否决权</p>
+        <h4 data-i18n="arch.s2_title">AI-2 风控审核</h4>
+        <p data-i18n="arch.s2_desc">独立风控模型<br>检验风险回报比<br>一票否决权</p>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="step highlight">
         <div class="n">03</div>
-        <h4>AI-3 执行监控</h4>
-        <p>订单全生命周期追踪<br>动态止损·分批止盈<br>实时风控调整</p>
+        <h4 data-i18n="arch.s3_title">AI-3 执行监控</h4>
+        <p data-i18n="arch.s3_desc">订单全生命周期追踪<br>动态止损·分批止盈<br>实时风控调整</p>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="step">
         <div class="n" style="font-size:1.5rem">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <h4>MT5 自动下单</h4>
-        <p>XAUUSD 黄金直连<br>全自动无人值守<br>每笔订单有据可查</p>
+        <h4 data-i18n="arch.s4_title">MT5 自动下单</h4>
+        <p data-i18n="arch.s4_desc">XAUUSD 黄金直连<br>全自动无人值守<br>每笔订单有据可查</p>
       </div>
     </div>
 
@@ -551,15 +542,15 @@
         <div class="arch-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2a2.5 2.5 0 0 1 2.5 2.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.76-3.78A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2a2.5 2.5 0 0 0-2.5 2.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.76-3.78A2.5 2.5 0 0 0 14.5 2Z"/><path d="M12 11v3"/></svg>
         </div>
-        <h4>为什么需要三个AI？</h4>
-        <p>单个AI的分析结果就像一个人的观点——可能有偏见、可能"幻觉"、可能看漏关键信号。三个AI从不同角度独立分析，只有真正的交易机会才能通过全部审核。这就像三个资深交易员同时看盘，而不是一个人说了算。</p>
+        <h4 data-i18n="arch.a1_title">为什么需要三个AI？</h4>
+        <p data-i18n="arch.a1_desc">单个AI的分析结果就像一个人的观点——可能有偏见、可能"幻觉"、可能看漏关键信号。三个AI从不同角度独立分析，只有真正的交易机会才能通过全部审核。这就像三个资深交易员同时看盘，而不是一个人说了算。</p>
       </div>
       <div class="arch-box">
         <div class="arch-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/><path d="M3 20h18"/></svg>
         </div>
-        <h4>真实案例：被否决的信号</h4>
-        <p>AI-1 看到强势突破信号建议追多，AI-2 发现风险回报比仅1:0.3且紧邻上方强阻力位→一票否决。行情随后冲高回落，追多者被套。这就是三审的价值。</p>
+        <h4 data-i18n="arch.a2_title">真实案例：被否决的信号</h4>
+        <p data-i18n="arch.a2_desc">AI-1 看到强势突破信号建议追多，AI-2 发现风险回报比仅1:0.3且紧邻上方强阻力位→一票否决。行情随后冲高回落，追多者被套。这就是三审的价值。</p>
       </div>
     </div>
   </div>
@@ -568,71 +559,62 @@
 <!-- ═══════════ PRICING ═══════════ -->
 <section class="sec" id="pricing">
   <div class="sec-inner">
-    <div class="sec-label tac">定价方案</div>
-    <h2 class="sec-title tac">透明定价，无隐形收费</h2>
-    <p class="sec-desc tac">从免费体验到专业配置，找到适合你的方案。所有方案均包含三审AI架构。</p>
-
-    <!-- Month/Year Toggle -->
-    <div class="pricing-toggle reveal">
-      <span class="toggle-label active" data-period="monthly" onclick="switchPricing('monthly')">月付</span>
-      <button class="toggle-switch" id="pricingToggle" onclick="switchPricing(event)" aria-label="切换月付/年付">
-        <span class="toggle-thumb"></span>
-      </button>
-      <span class="toggle-label" data-period="yearly" onclick="switchPricing('yearly')">年付</span>
-      <span class="toggle-save" id="yearlySaveBadge">省 ¥1,089</span>
-    </div>
+    <div class="sec-label tac" data-i18n="pricing.label">定价方案</div>
+    <h2 class="sec-title tac" data-i18n="pricing.title">透明定价，无隐形收费</h2>
+    <p class="sec-desc tac" data-i18n="pricing.desc">从免费体验到专业配置，找到适合你的方案。所有方案均包含三审AI架构。</p>
 
     <div class="price-grid reveal">
       <!-- Free -->
       <div class="price-card">
-        <div class="plan-name">体验版</div>
-        <div class="plan-desc">了解三审AI的核心逻辑</div>
-        <div class="plan-price">免费</div>
-        <div class="plan-period">限时7天</div>
+        <div class="plan-name" data-i18n="pricing.free_name">体验版</div>
+        <div class="plan-desc" data-i18n="pricing.free_desc">了解三审AI的核心逻辑</div>
+        <div class="plan-price" data-i18n="pricing.free_price">免费</div>
+        <div class="plan-period" data-i18n="pricing.free_period">限时7天</div>
         <ul class="plan-feats">
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>三审AI决策引擎</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>MT5 EA 自动交易</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>预设策略模板</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>远程安装指导</li>
-          <li style="color:var(--fg-dim)"><svg width="16" height="16" viewBox="0 0 20 20" fill="var(--fg-dim)" style="flex-shrink:0;margin-right:6px"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>自定义Prompt</li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.free_f1">三审AI决策引擎</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.free_f2">MT5 EA 自动交易</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.free_f3">预设策略模板</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.free_f4">远程安装指导</span></li>
+          <li style="color:var(--fg-dim)"><svg width="16" height="16" viewBox="0 0 20 20" fill="var(--fg-dim)" style="flex-shrink:0;margin-right:6px"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg><span data-i18n="pricing.free_f5">自定义Prompt</span></li>
         </ul>
-        <a href="#cta" class="plan-btn outline">联系尝鲜</a>
+        <a href="#cta" class="plan-btn outline" data-i18n="pricing.free_btn">联系尝鲜</a>
       </div>
 
-      <!-- Professional -->
-      <div class="price-card featured" id="proCard">
-        <div class="plan-name">专业版</div>
-        <div class="plan-desc">严肃交易者的选择</div>
-        <div class="plan-price"><span class="price-num" id="proPrice">299</span><sub>元</sub></div>
-        <div class="plan-period"><span id="proPeriod">/ 月</span><span class="yearly-save" id="proYearlySave" style="display:none">立省 ¥1,089</span></div>
-        <div class="plan-price-save" id="proPriceNote" style="display:none">相当于 ¥208/月</div>
-        <ul class="plan-feats">
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>全部体验版功能</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>Walk-Forward 策略优化</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>蒙特卡洛模拟器</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>自定义Prompt引擎</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>多模型自由组合</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>VPS 一键部署方案</li>
-        </ul>
-        <a href="#cta" class="plan-btn gold" id="proBtn">立即开通</a>
-      </div>
-
-      <!-- Enterprise -->
+      <!-- Professional Monthly -->
       <div class="price-card">
-        <div class="plan-name">旗舰版</div>
-        <div class="plan-desc">机构级交易配置</div>
-        <div class="plan-price">定制</div>
-        <div class="plan-period">联系报价</div>
+        <div class="plan-name" data-i18n="pricing.monthly_name">专业版 · 月付</div>
+        <div class="plan-desc" data-i18n="pricing.monthly_desc">灵活试用，随时可停</div>
+        <div class="plan-price">299<sub data-i18n="pricing.currency">元</sub></div>
+        <div class="plan-period" data-i18n="pricing.monthly_period">/ 月</div>
         <ul class="plan-feats">
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>全部专业版功能</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>专属策略定制</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>多账户管理</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>独立API通道</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>优先技术支持</li>
-          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>专属API中转站</li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.monthly_f1">全部体验版功能</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.monthly_f2">Walk-Forward 策略优化</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.monthly_f3">蒙特卡洛模拟器</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.monthly_f4">自定义Prompt引擎</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.monthly_f5">多模型自由组合</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.monthly_f6">VPS 一键部署方案</span></li>
         </ul>
-        <a href="#cta" class="plan-btn outline">联系报价</a>
+        <a href="#cta" class="plan-btn outline" data-i18n="pricing.buy_btn">立即开通</a>
       </div>
+
+      <!-- Professional Yearly -->
+      <div class="price-card featured yearly-best" data-badge="最划算">
+        <div class="plan-name" data-i18n="pricing.yearly_name">专业版 · 年付</div>
+        <div class="plan-desc" data-i18n="pricing.yearly_desc">长期交易者的最佳选择</div>
+        <div class="plan-price">2499<sub data-i18n="pricing.currency">元</sub></div>
+        <div class="plan-period"><span data-i18n="pricing.yearly_period">/ 年</span> <span class="yearly-save" style="display:inline-block" data-i18n="pricing.yearly_save">立省 ¥1,089</span></div>
+        <div class="plan-price-save" style="display:block" data-i18n="pricing.yearly_note">相当于 ¥208/月</div>
+        <ul class="plan-feats">
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.yearly_f1">全部月付版功能</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.yearly_f2">5 个 MT5 账号绑定</span></li>
+
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.yearly_f3">优先技术支持</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.yearly_f4">专属API中转站</span></li>
+          <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span><span data-i18n="pricing.yearly_f5">持续版本更新</span></li>
+        </ul>
+        <a href="#cta" class="plan-btn gold" data-i18n="pricing.buy_btn">立即开通</a>
+      </div>
+
     </div>
   </div>
 </section>
@@ -640,31 +622,31 @@
 <!-- ═══════════ TRUST ═══════════ -->
 <section class="sec sec-accent" id="trust">
   <div class="sec-inner">
-    <div class="sec-label tac">信任与数据</div>
-    <h2 class="sec-title tac">不是"黑箱"，而是透明工具</h2>
-    <p class="sec-desc tac">我们定位为独立技术工具提供方——不推荐任何券商、不代客理财、不承诺收益。每一笔交易决策都有AI留下的完整分析日志。</p>
+    <div class="sec-label tac" data-i18n="trust.label">信任与数据</div>
+    <h2 class="sec-title tac" data-i18n="trust.title">不是"黑箱"，而是透明工具</h2>
+    <p class="sec-desc tac" data-i18n="trust.desc">我们定位为独立技术工具提供方——不推荐任何券商、不代客理财、不承诺收益。每一笔交易决策都有AI留下的完整分析日志。</p>
 
     <div class="trust-cards reveal">
       <div class="trust-card">
         <div class="t-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
         </div>
-        <h4>每笔交易可追溯</h4>
-        <p>AI-1 的分析结论、AI-2 的审核意见、AI-3 的监控日志——完整的决策链路，不是"AI说买就买"。</p>
+        <h4 data-i18n="trust.t1_title">每笔交易可追溯</h4>
+        <p data-i18n="trust.t1_desc">AI-1 的分析结论、AI-2 的审核意见、AI-3 的监控日志——完整的决策链路，不是"AI说买就买"。</p>
       </div>
       <div class="trust-card">
         <div class="t-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2C20 17.5 12 22 12 22z"/></svg>
         </div>
-        <h4>独立技术工具</h4>
-        <p>不代理任何券商、不接触资金、不代客理财。我们只提供技术工具，交易决策和资金安全始终由你掌控。</p>
+        <h4 data-i18n="trust.t2_title">独立技术工具</h4>
+        <p data-i18n="trust.t2_desc">不代理任何券商、不接触资金、不代客理财。我们只提供技术工具，交易决策和资金安全始终由你掌控。</p>
       </div>
       <div class="trust-card">
         <div class="t-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
-        <h4>风险透明告知</h4>
-        <p>AI交易不是印钞机，市场永远有风险。我们只会告诉你这套工具怎么做决策，不会告诉你"稳赚不赔"——因为没有人能做到。</p>
+        <h4 data-i18n="trust.t3_title">风险透明告知</h4>
+        <p data-i18n="trust.t3_desc">AI交易不是印钞机，市场永远有风险。我们只会告诉你这套工具怎么做决策，不会告诉你"稳赚不赔"——因为没有人能做到。</p>
       </div>
     </div>
   </div>
@@ -673,46 +655,46 @@
 <!-- ═══════════ FAQ ═══════════ -->
 <section class="sec" id="faq">
   <div class="sec-inner">
-    <div class="sec-label tac">常见问题</div>
-    <h2 class="sec-title tac">你可能想问的</h2>
+    <div class="sec-label tac" data-i18n="faq.label">常见问题</div>
+    <h2 class="sec-title tac" data-i18n="faq.title">你可能想问的</h2>
     <p class="sec-desc tac"></p>
 
     <div class="faq-list reveal">
       <div class="faq-item open">
         <button class="faq-q">
-          需要会编程吗？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+          <span data-i18n="faq.q1">需要会编程吗？</span><span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
-        <div class="faq-a"><div class="faq-a-inner">不需要。内置预设策略和模型配置，开箱即用。如果你懂编程，可以深度自定义Prompt、策略逻辑和模型组合。</div></div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a1">不需要。内置预设策略和模型配置，开箱即用。如果你懂编程，可以深度自定义Prompt、策略逻辑和模型组合。</div></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">
-          支持哪些交易品种？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+          <span data-i18n="faq.q2">支持哪些交易品种？</span><span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
-        <div class="faq-a"><div class="faq-a-inner">当前主攻 XAUUSD（黄金）。黄金趋势性强、流动性好，是AI量化交易最适合的品种之一。更多品种持续扩展中。</div></div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a2">当前主攻 XAUUSD（黄金）。黄金趋势性强、流动性好，是AI量化交易最适合的品种之一。更多品种持续扩展中。</div></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">
-          AI调用的Token成本？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+          <span data-i18n="faq.q3">AI调用的Token成本？</span><span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
-        <div class="faq-a"><div class="faq-a-inner">每笔分析约消耗数百Token，月成本通常在几十元以内。我们还提供独立的API中转站服务，比官方价格更低。</div></div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a3">每笔分析约消耗数百Token，月成本通常在几十元以内。我们还提供独立的API中转站服务，比官方价格更低。</div></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">
-          和传统EA有什么区别？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+          <span data-i18n="faq.q4">和传统EA有什么区别？</span><span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
-        <div class="faq-a"><div class="faq-a-inner">传统EA是固定规则的if-else机械执行。我们是让AI真正"看K线图"做分析决策，理解市场语境而非死守参数。</div></div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a4">传统EA是固定规则的if-else机械执行。我们是让AI真正"看K线图"做分析决策，理解市场语境而非死守参数。</div></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">
-          可以在自己电脑上跑吗？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+          <span data-i18n="faq.q5">可以在自己电脑上跑吗？</span><span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
-        <div class="faq-a"><div class="faq-a-inner">可以。只要电脑开着MT5就能运行。建议使用VPS实现24小时不间断运行，专业版提供一键部署方案。</div></div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a5">可以。只要电脑开着MT5就能运行。建议使用VPS实现24小时不间断运行，专业版提供一键部署方案。</div></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">
-          效果怎么样？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+          <span data-i18n="faq.q6">效果怎么样？</span><span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
-        <div class="faq-a"><div class="faq-a-inner">我们不承诺收益。AI的决策质量取决于市场状态和模型能力。建议先通过内置回测+Walk-Forward+Monte Carlo充分验证后再小额实盘试用。</div></div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a6">我们不承诺收益。AI的决策质量取决于市场状态和模型能力。建议先通过内置回测+Walk-Forward+Monte Carlo充分验证后再小额实盘试用。</div></div>
       </div>
     </div>
   </div>
@@ -720,13 +702,13 @@
 
 <!-- ═══════════ CTA ═══════════ -->
 <section class="cta-sec" id="cta">
-  <h2>准备好让AI帮你分析行情了吗？</h2>
-  <p>免费试用 · 1对1远程指导安装 · 不编程也能用</p>
-  <p style="color:var(--gold);font-size:.84rem;margin-bottom:28px;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>投资有风险，AI分析仅供参考，不承诺收益。过往表现不代表未来结果。</p>
+  <h2 data-i18n="cta.title">准备好让AI帮你分析行情了吗？</h2>
+  <p data-i18n="cta.sub">免费试用 · 1对1远程指导安装 · 不编程也能用</p>
+  <p style="color:var(--gold);font-size:.84rem;margin-bottom:28px;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span data-i18n="cta.warning">投资有风险，AI分析仅供参考，不承诺收益。过往表现不代表未来结果。</span></p>
 
   <div class="cta-actions">
-    <a href="#pricing" class="btn btn-gold">查看定价方案</a>
-    <a href="http://127.0.0.1:9000/login" class="btn btn-ghost">AI中转站入口 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg></a>
+    <a href="#pricing" class="btn btn-gold" data-i18n="cta.btn_pricing">查看定价方案</a>
+    <a href="http://127.0.0.1:9000/login" class="btn btn-ghost"><span data-i18n="cta.btn_console">AI中转站入口</span> <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg></a>
   </div>
 
   <div class="cta-contacts">
@@ -751,28 +733,28 @@
 <footer class="ftr">
   <div class="ftr-inner">
     <div class="ftr-col">
-      <h4>小刚量化</h4>
-      <a href="#features">核心能力</a>
-      <a href="#architecture">三审架构</a>
-      <a href="#pricing">定价方案</a>
-      <a href="#faq">常见问题</a>
+      <h4 data-i18n="footer.col1_title">小刚量化</h4>
+      <a href="#features" data-i18n="footer.link_features">核心能力</a>
+      <a href="#architecture" data-i18n="footer.link_arch">三审架构</a>
+      <a href="#pricing" data-i18n="footer.link_pricing">定价方案</a>
+      <a href="#faq" data-i18n="footer.link_faq">常见问题</a>
     </div>
     <div class="ftr-col">
-      <h4>技术生态</h4>
-      <a href="https://github.com/sunny-leo922/xiaogang-quant" target="_blank">GitHub 开源</a>
-      <a href="#cta">API 中转站</a>
-      <a href="#cta">技术支持</a>
+      <h4 data-i18n="footer.col2_title">技术生态</h4>
+      <a href="https://github.com/sunny-leo922/xiaogang-quant" target="_blank" data-i18n="footer.link_github">GitHub 开源</a>
+      <a href="#cta" data-i18n="footer.link_api">API 中转站</a>
+      <a href="#cta" data-i18n="footer.link_support">技术支持</a>
     </div>
     <div class="ftr-col">
-      <h4>联系方式</h4>
-      <a href="#cta">QQ: 80625640</a>
-      <a href="#cta">Telegram: @ArlonQ</a>
-      <a href="mailto:lixiaofan09@gmail.com">Email</a>
+      <h4 data-i18n="footer.col3_title">联系方式</h4>
+      <a href="https://wpa.qq.com/msgrd?v=3&uin=80625640&site=qq&menu=yes" target="_blank" rel="noopener noreferrer">QQ: 80625640</a>
+      <a href="https://t.me/ArlonQ" target="_blank" rel="noopener noreferrer">Telegram: @ArlonQ</a>
+      <a href="mailto:lixiaofan09@gmail.com">Email lixiaofan09@gmail.com</a>
     </div>
   </div>
   <div class="ftr-bottom">
-    <p>小刚量化 · 金蟾AI交易 — 独立AI量化交易技术工具。我们不推荐任何券商、不代客理财、不承诺收益。AI输出仅供技术参考，不构成投资建议。交易有风险，盈亏自负。</p>
-    <p class="legal">GPT / Claude / Gemini 为各自所属公司的注册商标。&copy; 2026 小刚量化-金蟾AI交易. All rights reserved.</p>
+    <p data-i18n="footer.legal1">小刚量化 · 金蟾AI交易 — 独立AI量化交易技术工具。我们不推荐任何券商、不代客理财、不承诺收益。AI输出仅供技术参考，不构成投资建议。交易有风险，盈亏自负。</p>
+    <p class="legal" data-i18n="footer.legal2">GPT / Claude / Gemini 为各自所属公司的注册商标。&copy; 2026 小刚量化-金蟾AI交易. All rights reserved.</p>
   </div>
 </footer>
 
@@ -798,50 +780,290 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
 }
 
-// ── Pricing Toggle ──
-let pricingPeriod = 'monthly'
-function switchPricing(arg) {
-  const next = typeof arg === 'string' ? arg : (pricingPeriod === 'monthly' ? 'yearly' : 'monthly')
-  if (next === pricingPeriod) return
-  pricingPeriod = next
-
-  const isYearly = pricingPeriod === 'yearly'
-  const toggleBtn = document.getElementById('pricingToggle')
-  const saveBadge = document.getElementById('yearlySaveBadge')
-  const labels = document.querySelectorAll('.pricing-toggle .toggle-label')
-
-  // Toggle switch
-  if (isYearly) { toggleBtn.classList.add('yearly') } else { toggleBtn.classList.remove('yearly') }
-
-  // Label active states
-  labels.forEach(l => {
-    l.classList.toggle('active', l.dataset.period === pricingPeriod)
-  })
-
-  // Save badge
-  saveBadge.classList.toggle('show', isYearly)
-
-  // Pro card: price / period / save note
-  const proPrice = document.getElementById('proPrice')
-  const proPeriod = document.getElementById('proPeriod')
-  const proYearlySave = document.getElementById('proYearlySave')
-  const proPriceNote = document.getElementById('proPriceNote')
-  const proCard = document.getElementById('proCard')
-
-  if (isYearly) {
-    proPrice.textContent = '2499'
-    proPeriod.textContent = '/ 年'
-    proYearlySave.style.display = 'inline-block'
-    proPriceNote.style.display = 'block'
-    proCard.classList.add('yearly-best')
-  } else {
-    proPrice.textContent = '299'
-    proPeriod.textContent = '/ 月'
-    proYearlySave.style.display = 'none'
-    proPriceNote.style.display = 'none'
-    proCard.classList.remove('yearly-best')
+// ── i18n ──
+const I18N = {
+  zh: {
+    'meta.title': '小刚量化 · 金蟾AI交易 — 多模型AI量化交易系统 | 三审架构，全自动黄金交易',
+    'meta.desc': '自研AI量化交易系统，GPT-5.6/Claude/Sonnet/Gemini三模型联合看图决策。分析→风控审→持仓监控，无人值守全自动交易。MT5 EA一键接入，不编程也能用。',
+    'meta.ogTitle': '小刚量化-金蟾AI交易 — 三审AI架构，全自动黄金交易',
+    'meta.ogDesc': '自研AI量化交易系统，GPT-5.6/Claude Sonnet 5/Gemini 3.6三模型联合看图决策。意见一致才下单，不编程也能用。',
+    'nav.brand': '小刚量化',
+    'nav.features': '核心能力',
+    'nav.architecture': '三审架构',
+    'nav.pricing': '定价方案',
+    'nav.faq': '常见问题',
+    'nav.cta': '获取授权',
+    'nav.start': '开始使用',
+    'hero.badge': 'GPT-5.6 · Claude Sonnet 5 · Gemini 3.6 — 全自动交易',
+    'hero.h1_1': '三个AI同时看图',
+    'hero.h1_2': '意见一致才下单',
+    'hero.desc': '自研三审AI量化交易系统。AI-1 分析行情 → AI-2 风控审核（一票否决权）→ AI-3 持仓监控。接入MT5全自动运行，不编程也能用。独立技术工具，不推荐任何券商。',
+    'hero.btn_pricing': '查看定价方案',
+    'hero.btn_arch': '了解三审架构',
+    'hero.stat1': '大模型并联分析',
+    'hero.stat2': 'AI投票决策机制',
+    'hero.stat3': '人工干预交易',
+    'hero.stat4': '全平台全自动',
+    'hero.stat_num1': '3+',
+    'hero.stat_num2': '3层',
+    'hero.stat_num3': '0',
+    'hero.stat_num4': 'MT5',
+    'features.label': '核心能力',
+    'features.title': '你的AI交易团队，24小时不休息',
+    'features.desc': '不是单一模型赌博，而是多个顶级AI模型组成的"交易委员会"，只有意见一致时才会下单。',
+    'features.f1_title': '多模型联合分析',
+    'features.f1_desc': 'GPT-5.6、Claude Sonnet 5、Gemini 3.6 Flash 三大顶尖模型同时解读同一张K线图。多头判断、空头信号、震荡识别——比单一模型更全面的市场视角。',
+    'features.f2_title': 'AI-2 一票否决权',
+    'features.f2_desc': 'AI-1 分析完信号后，AI-2 作为独立风控官进行二次复核。如果风险回报不达标或与趋势背离，直接否决执行——即使AI-1强烈看多。',
+    'features.f3_title': 'AI-3 持仓实时监控',
+    'features.f3_desc': '第三层AI不间断监控持仓状态，动态调整止损止盈、分批止盈、移动保本。不是设好就不管，而是全程有人盯着。',
+    'features.f4_title': '零编程可运行',
+    'features.f4_desc': '内置多种预设策略，一键启动。懂编程的用户可以完全自定义策略、接入自己的Prompt和模型组合。从零基础到专业级都适用。',
+    'features.f5_title': 'Walk-Forward + 蒙特卡洛',
+    'features.f5_desc': '不是简单回测画曲线。内置Walk-Forward优化引擎和Monte Carlo模拟器，帮你理解策略在不同市场状态下的真实表现，杜绝过拟合。',
+    'features.f6_title': '多层风控体系',
+    'features.f6_desc': '最大回撤熔断、波动率动态仓位、阶梯式止损、每日盈亏上限——不是"赌方向"，而是"管风险"。先活着，再赚钱。',
+    'arch.label': '三审AI架构',
+    'arch.title': '三个AI组成"交易委员会"',
+    'arch.desc': '每笔交易必须经过三位独立AI一一审核。意见一致→下单，意见分歧→放弃。从根本上解决单模型AI的"幻觉下单"问题。',
+    'arch.s1_title': 'AI-1 看图分析',
+    'arch.s1_desc': 'GPT-5.6 / Claude / Gemini<br>多周期K线联合解读<br>趋势·支撑·形态·信号',
+    'arch.s2_title': 'AI-2 风控审核',
+    'arch.s2_desc': '独立风控模型<br>检验风险回报比<br>一票否决权',
+    'arch.s3_title': 'AI-3 执行监控',
+    'arch.s3_desc': '订单全生命周期追踪<br>动态止损·分批止盈<br>实时风控调整',
+    'arch.s4_title': 'MT5 自动下单',
+    'arch.s4_desc': 'XAUUSD 黄金直连<br>全自动无人值守<br>每笔订单有据可查',
+    'arch.a1_title': '为什么需要三个AI？',
+    'arch.a1_desc': '单个AI的分析结果就像一个人的观点——可能有偏见、可能"幻觉"、可能看漏关键信号。三个AI从不同角度独立分析，只有真正的交易机会才能通过全部审核。这就像三个资深交易员同时看盘，而不是一个人说了算。',
+    'arch.a2_title': '真实案例：被否决的信号',
+    'arch.a2_desc': 'AI-1 看到强势突破信号建议追多，AI-2 发现风险回报比仅1:0.3且紧邻上方强阻力位→一票否决。行情随后冲高回落，追多者被套。这就是三审的价值。',
+    'pricing.label': '定价方案',
+    'pricing.title': '透明定价，无隐形收费',
+    'pricing.desc': '从免费体验到专业配置，找到适合你的方案。所有方案均包含三审AI架构。',
+    'pricing.free_name': '体验版',
+    'pricing.free_desc': '了解三审AI的核心逻辑',
+    'pricing.free_price': '免费',
+    'pricing.free_period': '限时7天',
+    'pricing.free_f1': '三审AI决策引擎',
+    'pricing.free_f2': 'MT5 EA 自动交易',
+    'pricing.free_f3': '预设策略模板',
+    'pricing.free_f4': '远程安装指导',
+    'pricing.free_f5': '自定义Prompt',
+    'pricing.free_btn': '联系尝鲜',
+    'pricing.monthly_name': '专业版 · 月付',
+    'pricing.monthly_desc': '灵活试用，随时可停',
+    'pricing.currency': '元',
+    'pricing.monthly_period': '/ 月',
+    'pricing.monthly_f1': '全部体验版功能',
+    'pricing.monthly_f2': 'Walk-Forward 策略优化',
+    'pricing.monthly_f3': '蒙特卡洛模拟器',
+    'pricing.monthly_f4': '自定义Prompt引擎',
+    'pricing.monthly_f5': '多模型自由组合',
+    'pricing.monthly_f6': 'VPS 一键部署方案',
+    'pricing.yearly_name': '专业版 · 年付',
+    'pricing.yearly_desc': '长期交易者的最佳选择',
+    'pricing.yearly_period': '/ 年',
+    'pricing.yearly_save': '立省 ¥1,089',
+    'pricing.yearly_note': '相当于 ¥208/月',
+    'pricing.yearly_f1': '全部月付版功能',
+    'pricing.yearly_f2': '5 个 MT5 账号绑定',
+    'pricing.yearly_f3': '优先技术支持',
+    'pricing.yearly_f4': '专属API中转站',
+    'pricing.yearly_f5': '持续版本更新',
+    'pricing.buy_btn': '立即开通',
+    'trust.label': '信任与数据',
+    'trust.title': '不是"黑箱"，而是透明工具',
+    'trust.desc': '我们定位为独立技术工具提供方——不推荐任何券商、不代客理财、不承诺收益。每一笔交易决策都有AI留下的完整分析日志。',
+    'trust.t1_title': '每笔交易可追溯',
+    'trust.t1_desc': 'AI-1 的分析结论、AI-2 的审核意见、AI-3 的监控日志——完整的决策链路，不是"AI说买就买"。',
+    'trust.t2_title': '独立技术工具',
+    'trust.t2_desc': '不代理任何券商、不接触资金、不代客理财。我们只提供技术工具，交易决策和资金安全始终由你掌控。',
+    'trust.t3_title': '风险透明告知',
+    'trust.t3_desc': 'AI交易不是印钞机，市场永远有风险。我们只会告诉你这套工具怎么做决策，不会告诉你"稳赚不赔"——因为没有人能做到。',
+    'faq.label': '常见问题',
+    'faq.title': '你可能想问的',
+    'faq.q1': '需要会编程吗？',
+    'faq.a1': '不需要。内置预设策略和模型配置，开箱即用。如果你懂编程，可以深度自定义Prompt、策略逻辑和模型组合。',
+    'faq.q2': '支持哪些交易品种？',
+    'faq.a2': '当前主攻 XAUUSD（黄金）。黄金趋势性强、流动性好，是AI量化交易最适合的品种之一。更多品种持续扩展中。',
+    'faq.q3': 'AI调用的Token成本？',
+    'faq.a3': '每笔分析约消耗数百Token，月成本通常在几十元以内。我们还提供独立的API中转站服务，比官方价格更低。',
+    'faq.q4': '和传统EA有什么区别？',
+    'faq.a4': '传统EA是固定规则的if-else机械执行。我们是让AI真正"看K线图"做分析决策，理解市场语境而非死守参数。',
+    'faq.q5': '可以在自己电脑上跑吗？',
+    'faq.a5': '可以。只要电脑开着MT5就能运行。建议使用VPS实现24小时不间断运行，专业版提供一键部署方案。',
+    'faq.q6': '效果怎么样？',
+    'faq.a6': '我们不承诺收益。AI的决策质量取决于市场状态和模型能力。建议先通过内置回测+Walk-Forward+Monte Carlo充分验证后再小额实盘试用。',
+    'cta.title': '准备好让AI帮你分析行情了吗？',
+    'cta.sub': '免费试用 · 1对1远程指导安装 · 不编程也能用',
+    'cta.warning': '投资有风险，AI分析仅供参考，不承诺收益。过往表现不代表未来结果。',
+    'cta.btn_pricing': '查看定价方案',
+    'cta.btn_console': 'AI中转站入口',
+    'footer.col1_title': '小刚量化',
+    'footer.link_features': '核心能力',
+    'footer.link_arch': '三审架构',
+    'footer.link_pricing': '定价方案',
+    'footer.link_faq': '常见问题',
+    'footer.col2_title': '技术生态',
+    'footer.link_github': 'GitHub 开源',
+    'footer.link_api': 'API 中转站',
+    'footer.link_support': '技术支持',
+    'footer.col3_title': '联系方式',
+    'footer.legal1': '小刚量化 · 金蟾AI交易 — 独立AI量化交易技术工具。我们不推荐任何券商、不代客理财、不承诺收益。AI输出仅供技术参考，不构成投资建议。交易有风险，盈亏自负。',
+    'footer.legal2': 'GPT / Claude / Gemini 为各自所属公司的注册商标。© 2026 小刚量化-金蟾AI交易. All rights reserved.'
+  },
+  en: {
+    'meta.title': 'XiaoGang Quant — Multi-Model AI Trading | 3-Layer Review, Automated Gold Trading',
+    'meta.desc': 'Proprietary AI quant trading system. GPT-5.6/Claude Sonnet 5/Gemini 3.6 jointly analyze charts. 3-layer AI review: analysis → risk control → position monitoring. MT5 EA auto-trading. No coding needed.',
+    'meta.ogTitle': 'XiaoGang Quant — 3-Layer AI Architecture, Automated Gold Trading',
+    'meta.ogDesc': 'Proprietary AI quant system. GPT-5.6/Claude Sonnet 5/Gemini 3.6 analyze charts together. Trades only when all three agree. No coding required.',
+    'nav.brand': 'XiaoGang Quant',
+    'nav.features': 'Features',
+    'nav.architecture': 'Architecture',
+    'nav.pricing': 'Pricing',
+    'nav.faq': 'FAQ',
+    'nav.cta': 'Get Access',
+    'nav.start': 'Get Started',
+    'hero.badge': 'GPT-5.6 · Claude Sonnet 5 · Gemini 3.6 — Fully Automated Trading',
+    'hero.h1_1': 'Three AIs Read Your Charts',
+    'hero.h1_2': 'Trade Only When All Agree',
+    'hero.desc': 'A proprietary 3-layer AI quant trading system. AI-1 analyzes the market → AI-2 audits risk (veto power) → AI-3 monitors positions. Fully automated via MT5. No coding required. Independent tech tool — we do not recommend any broker.',
+    'hero.btn_pricing': 'View Pricing',
+    'hero.btn_arch': 'How 3-Layer AI Works',
+    'hero.stat1': 'Multi-Model Parallel Analysis',
+    'hero.stat2': 'AI Voting Mechanism',
+    'hero.stat3': 'Zero Manual Intervention',
+    'hero.stat4': 'Fully Automated (MT5)',
+    'hero.stat_num1': '3+',
+    'hero.stat_num2': '3 Layers',
+    'hero.stat_num3': '0',
+    'hero.stat_num4': 'MT5',
+    'features.label': 'Core Capabilities',
+    'features.title': 'Your AI Trading Team — 24/7 Vigilance',
+    'features.desc': 'Not a single-model gamble. Multiple top-tier AIs form a "trading committee" — orders execute only when all opinions align.',
+    'features.f1_title': 'Multi-Model Joint Analysis',
+    'features.f1_desc': 'GPT-5.6, Claude Sonnet 5, Gemini 3.6 Flash analyze the same chart simultaneously. Bullish, bearish, consolidation — a more comprehensive view than any single model.',
+    'features.f2_title': 'AI-2 Veto Power',
+    'features.f2_desc': 'After AI-1 identifies a signal, AI-2 audits risk independently. If the risk-to-reward fails or conflicts with trend, execution is vetoed — even if AI-1 is strongly bullish.',
+    'features.f3_title': 'AI-3 Real-Time Monitor',
+    'features.f3_desc': 'The third-layer AI continuously monitors open positions — dynamically adjusting SL, TP, partial exits, trailing stops. Not "set and forget"; someone is always watching.',
+    'features.f4_title': 'Zero Coding Required',
+    'features.f4_desc': 'Built-in preset strategies — launch with one click. Developers can fully customize prompts, strategies, and model combos. From beginner to pro.',
+    'features.f5_title': 'Walk-Forward + Monte Carlo',
+    'features.f5_desc': 'Beyond simple backtest curves. Built-in Walk-Forward optimization and Monte Carlo simulator reveal real performance across market conditions — eliminating overfitting.',
+    'features.f6_title': 'Multi-Layer Risk Control',
+    'features.f6_desc': 'Max drawdown breaker, volatility-adjusted sizing, cascading stops, daily P&L limits — it\'s about "managing risk," not "gambling on direction." Survive first, then profit.',
+    'arch.label': '3-Layer AI Architecture',
+    'arch.title': 'Three AIs Form a "Trading Committee"',
+    'arch.desc': 'Every trade passes three independent AI reviews. Consensus → execute. Disagreement → discard. Solves the "hallucination trading" problem of single-model AI.',
+    'arch.s1_title': 'AI-1 Chart Analysis',
+    'arch.s1_desc': 'GPT-5.6 / Claude / Gemini<br>Multi-timeframe reading<br>Trend · Support · Pattern · Signal',
+    'arch.s2_title': 'AI-2 Risk Audit',
+    'arch.s2_desc': 'Dedicated risk model<br>Checks risk-reward ratio<br>Veto power',
+    'arch.s3_title': 'AI-3 Execution Monitor',
+    'arch.s3_desc': 'Full order lifecycle<br>Dynamic SL · Partial TP<br>Real-time adjustments',
+    'arch.s4_title': 'MT5 Auto Execution',
+    'arch.s4_desc': 'XAUUSD Gold direct<br>Fully unattended<br>Every trade documented',
+    'arch.a1_title': 'Why Three AIs?',
+    'arch.a1_desc': 'One AI\'s analysis is like one person\'s opinion — biased, prone to "hallucination," missing critical signals. Three AIs independently analyze from different angles. Only genuine opportunities pass all reviews. Like three veteran traders watching the same chart — not one person calling the shots.',
+    'arch.a2_title': 'Real Case: A Vetoed Signal',
+    'arch.a2_desc': 'AI-1 spotted a strong breakout and suggested chasing the rally. AI-2 found risk-reward at only 1:0.3 with strong resistance above → vetoed. Price reversed and trapped breakout chasers. That\'s the 3-layer value.',
+    'pricing.label': 'Pricing',
+    'pricing.title': 'Transparent Pricing, No Hidden Fees',
+    'pricing.desc': 'From free trial to pro — find your plan. All plans include the 3-layer AI architecture.',
+    'pricing.free_name': 'Trial',
+    'pricing.free_desc': 'Discover the 3-layer AI logic',
+    'pricing.free_price': 'Free',
+    'pricing.free_period': '7-Day Trial',
+    'pricing.free_f1': '3-Layer AI Decision Engine',
+    'pricing.free_f2': 'MT5 EA Auto Trading',
+    'pricing.free_f3': 'Preset Strategy Templates',
+    'pricing.free_f4': 'Remote Installation Guide',
+    'pricing.free_f5': 'Custom Prompt',
+    'pricing.free_btn': 'Try for Free',
+    'pricing.monthly_name': 'Pro · Monthly',
+    'pricing.monthly_desc': 'Flexible — cancel anytime',
+    'pricing.currency': 'CNY',
+    'pricing.monthly_period': '/ month',
+    'pricing.monthly_f1': 'All Trial features',
+    'pricing.monthly_f2': 'Walk-Forward Optimization',
+    'pricing.monthly_f3': 'Monte Carlo Simulator',
+    'pricing.monthly_f4': 'Custom Prompt Engine',
+    'pricing.monthly_f5': 'Multi-Model Combinations',
+    'pricing.monthly_f6': 'VPS One-Click Deploy',
+    'pricing.yearly_name': 'Pro · Yearly',
+    'pricing.yearly_desc': 'Best choice for serious traders',
+    'pricing.yearly_period': '/ year',
+    'pricing.yearly_save': 'Save ¥1,089',
+    'pricing.yearly_note': 'Only ¥208/mo equivalent',
+    'pricing.yearly_f1': 'All Monthly features',
+    'pricing.yearly_f2': '5 MT5 Account Bindings',
+    'pricing.yearly_f3': 'Priority Support',
+    'pricing.yearly_f4': 'Dedicated API Proxy',
+    'pricing.yearly_f5': 'Continuous Updates',
+    'pricing.buy_btn': 'Subscribe Now',
+    'trust.label': 'Trust & Data',
+    'trust.title': 'Not a "Black Box" — A Transparent Tool',
+    'trust.desc': 'We are an independent tech tool provider — no broker recommendations, no fund management, no return promises. Every trade leaves a complete AI audit trail.',
+    'trust.t1_title': 'Every Trade Traceable',
+    'trust.t1_desc': 'AI-1\'s analysis, AI-2\'s audit, AI-3\'s monitor log — a complete decision chain. Not "AI says buy so we buy."',
+    'trust.t2_title': 'Independent Tech Tool',
+    'trust.t2_desc': 'No broker affiliation, no custody of funds, no portfolio management. We only provide the technology. Trading decisions and fund safety remain under your control.',
+    'trust.t3_title': 'Transparent Risk Disclosure',
+    'trust.t3_desc': 'AI trading is not a money printer. Markets carry inherent risk. We tell you how this tool decides — never that it "guarantees profits," because no one can.',
+    'faq.label': 'FAQ',
+    'faq.title': 'You Might Be Wondering',
+    'faq.q1': 'Do I need coding skills?',
+    'faq.a1': 'No. Built-in presets and configs work out of the box. If you can code, deeply customize prompts, strategy logic, and model combinations.',
+    'faq.q2': 'Which instruments are supported?',
+    'faq.a2': 'Currently focused on XAUUSD (Gold). Gold offers strong trends and excellent liquidity — ideal for AI quant trading. More instruments coming.',
+    'faq.q3': 'What about AI token costs?',
+    'faq.a3': 'Each analysis uses a few hundred tokens — typically tens of CNY/month. We also offer an independent API proxy at lower rates than official pricing.',
+    'faq.q4': 'How is this different from traditional EAs?',
+    'faq.a4': 'Traditional EAs execute fixed if-else rules mechanically. Our AI actually "reads the chart" — understanding context rather than blindly following parameters.',
+    'faq.q5': 'Can I run it on my own PC?',
+    'faq.a5': 'Yes. As long as MT5 is running, it works. For 24/7 operation, a VPS is recommended — the Pro plan includes a one-click setup guide.',
+    'faq.q6': 'How well does it perform?',
+    'faq.a6': 'We don\'t promise returns. AI quality depends on market conditions and model capability. Validate via built-in backtesting + Walk-Forward + Monte Carlo before small-scale live testing.',
+    'cta.title': 'Ready to Let AI Analyze Your Charts?',
+    'cta.sub': 'Free trial · 1-on-1 remote setup · No coding required',
+    'cta.warning': 'Trading involves risk. AI analysis is for reference only, no return guarantees. Past performance does not indicate future results.',
+    'cta.btn_pricing': 'View Pricing',
+    'cta.btn_console': 'AI Proxy Console',
+    'footer.col1_title': 'XiaoGang Quant',
+    'footer.link_features': 'Features',
+    'footer.link_arch': 'Architecture',
+    'footer.link_pricing': 'Pricing',
+    'footer.link_faq': 'FAQ',
+    'footer.col2_title': 'Tech Ecosystem',
+    'footer.link_github': 'GitHub',
+    'footer.link_api': 'API Proxy',
+    'footer.link_support': 'Support',
+    'footer.col3_title': 'Contact',
+    'footer.legal1': 'XiaoGang Quant — Independent AI quant trading tech tool. We do not recommend brokers, manage funds, or promise returns. AI output is for technical reference only, not investment advice. Trading involves risk — you are responsible for your own P&L.',
+    'footer.legal2': 'GPT / Claude / Gemini are trademarks of their respective owners. © 2026 XiaoGang Quant. All rights reserved.'
   }
 }
+
+function setLang(lang) {
+  document.documentElement.setAttribute('data-lang', lang)
+  document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en')
+  localStorage.setItem('lang', lang)
+  document.querySelectorAll('#langSwitch button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang))
+  const d = I18N[lang]; if (!d) return
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n; if (d[k]) { const t = d[k]; t.indexOf('<br>') >= 0 ? el.innerHTML = t.replace(/<br>/g, '<br>') : el.textContent = t }
+  })
+  document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+    const k = el.dataset.i18nAttr; if (d[k]) el.tagName === 'META' ? el.setAttribute('content', d[k]) : el.textContent = d[k]
+  })
+  const yc = document.querySelector('.price-card.featured.yearly-best')
+  if (yc) yc.setAttribute('data-badge', lang === 'zh' ? '最划算' : 'Best Value')
+  const fc = document.querySelector('.price-card.featured:not(.yearly-best)')
+  if (fc) fc.setAttribute('data-badge', lang === 'zh' ? '最受欢迎' : 'Most Popular')
+}
+(function(){ setLang(localStorage.getItem('lang') || 'zh') })()
 </script>
 </body>
 </html>
