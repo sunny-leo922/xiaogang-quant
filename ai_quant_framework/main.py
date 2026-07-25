@@ -58,6 +58,8 @@ def cmd_backtest(args):
     """运行离线回测"""
     print("\n" + "=" * 60)
     print("  AIQuant Pro - 离线回测模式")
+    if getattr(args, "ai_sim", False):
+        print("  [AI仿真模式] 合成多模型投票 + SignalEngine融合")
     print("=" * 60)
 
     config = load_config()
@@ -72,6 +74,62 @@ def cmd_backtest(args):
     de = DataEngine(config)
     df = de.add_indicators(df)
     print(f"  生成 {len(df)} 根K线 (OHLCV+EMA+ATR+ADX)")
+
+    from ai_quant_framework.backtest.engine import BacktestEngine
+
+    if getattr(args, "ai_sim", False):
+        # --- AI仿真模式: 每bar生成合成投票 + SignalEngine融合 ---
+        from ai_quant_framework.core.signal_engine import SignalEngine
+        signal_engine = SignalEngine(config)
+        ai_signals = pd.Series(0, index=df.index, dtype=int)
+        vote_log = []
+
+        print(f"\n[2/4] AI仿真投票 ({len(df)} bars)...")
+        for bar_idx in range(100, len(df)):
+            row = df.iloc[bar_idx]
+            snapshot = {
+                "price": row["close"], "ema": row["ema"],
+                "ema_slope": row.get("ema_slope", 0), "adx": row.get("adx", 0),
+                "atr": row.get("atr", 10), "rsi": row.get("rsi", 50),
+                "close": row["close"], "open": row["open"],
+                "high": row["high"], "low": row["low"],
+                "volume": row.get("volume", 0),
+            }
+            votes = _generate_synthetic_votes(config, snapshot)
+            fused = signal_engine.fuse_votes(votes)
+            if fused.is_trade_signal:
+                ai_signals.iloc[bar_idx] = 1 if fused.direction == "BUY" else -1
+                vote_log.append(f"  bar{bar_idx}: {fused.direction} conf={fused.confidence:.0f}% "
+                                f"agree={fused.model_agreement:.0%}")
+
+        print(f"  投票点: {len(vote_log)}")
+        if vote_log:
+            print(f"  示例: {vote_log[min(len(vote_log)//2, len(vote_log)-1)]}")
+
+        # 回测
+        print("\n[3/4] AI仿真信号回测...")
+        engine = BacktestEngine(config)
+        result_ai = engine.run(df, ai_signals, df["atr"] if "atr" in df.columns else None)
+
+        # 性能报告
+        from ai_quant_framework.backtest.performance import PerformanceAnalyzer
+        print("\n" + PerformanceAnalyzer.summary(result_ai))
+
+        # 蒙特卡洛
+        from ai_quant_framework.backtest.monte_carlo import MonteCarloSimulator
+        mc = MonteCarloSimulator(config)
+        mc_result = mc.simulate(result_ai.trades)
+
+        print("\n--- 蒙特卡洛模拟 (2000次) ---")
+        print(f"  平均收益: {mc_result.mean_return_pct}%")
+        print(f"  最差收益: {mc_result.worst_return_pct}%")
+        print(f"  95%VaR: {mc_result.var_95_pct}%")
+        print(f"  平均回撤: {mc_result.mean_drawdown_pct}%")
+        print(f"  最大回撤: {mc_result.max_drawdown_pct}%")
+
+        print("\n" + "=" * 60)
+        print("  AI仿真回测完成!")
+        return
 
     # 运行趋势跟随回测
     print("\n[2/4] 运行趋势跟随策略...")
@@ -139,6 +197,89 @@ def cmd_backtest(args):
     print("=" * 60 + "\n")
 
 
+def _generate_synthetic_votes(config: dict, snapshot: dict, snapshot_h1: dict = None) -> list:
+    """
+    生成模拟多模型投票（用于无AI API时的回测仿真）
+    基于技术指标模拟模型投票行为，不调用任何LLM API
+    """
+    import random
+    from ai_quant_framework.core.signal_engine import ModelVote
+
+    model_names = [m["name"] for m in config["ai"]["models"] if m.get("weight", 0) > 0]
+    if not model_names:
+        model_names = ["DeepSeek", "GLM", "Qwen", "Kimi"]
+
+    price = snapshot.get("price", snapshot.get("close", 0))
+    ema = snapshot.get("ema", price)
+    ema_slope = snapshot.get("ema_slope", 0)
+    adx = snapshot.get("adx", 0)
+    atr = snapshot.get("atr", 10)
+    rsi = snapshot.get("rsi", 50)
+    price_vs_ema = (price - ema) / price if price > 0 else 0
+    atr_pct = atr / price if price > 0 else 0.003
+
+    # H1 影响（大周期趋势加权）
+    h1_bias = 0
+    if snapshot_h1:
+        h1_price = snapshot_h1.get("price", snapshot_h1.get("close", price))
+        h1_ema = snapshot_h1.get("ema", h1_price)
+        h1_slope = snapshot_h1.get("ema_slope", 0)
+        h1_vs_ema = (h1_price - h1_ema) / h1_price if h1_price > 0 else 0
+        h1_bias = 0.3 * (1 if h1_vs_ema > 0.001 else -1 if h1_vs_ema < -0.001 else 0)
+        if abs(h1_slope) > 0.001:
+            h1_bias += 0.2 * (1 if h1_slope > 0 else -1)
+
+    entry_price = price
+    votes = []
+    for name in model_names:
+        seed = hash(f"{name}_{price:.1f}_{ema:.1f}") % 10000
+        rng = random.Random(seed)
+
+        buy_score = 0
+        buy_score += 1.5 if ema_slope > 0.0002 else (-1.5 if ema_slope < -0.0002 else 0)
+        buy_score += (1.5 + rng.uniform(-0.3, 0.3)) * (1 if price_vs_ema > 0.001 else -1 if price_vs_ema < -0.001 else 0)
+        buy_score += (adx / 40 - 0.5) * (1 if ema_slope > 0 else -1) if adx > 20 else 0
+        buy_score += 0.5 if rsi > 55 else (-0.5 if rsi < 45 else 0)
+        buy_score += h1_bias
+        buy_score += rng.uniform(-0.3, 0.3)
+
+        buy_score = max(-3, min(3, buy_score))
+        if buy_score > 0.5:
+            direction = "BUY"
+        elif buy_score < -0.5:
+            direction = "SELL"
+        else:
+            direction = "HOLD"
+
+        confidence = max(20, min(90, abs(buy_score) * 25 + rng.uniform(-8, 8)))
+        sl = tp = 0
+        if direction != "HOLD":
+            sl_dist = atr_pct * (2.0 + rng.uniform(-0.3, 0.5))
+            tp_dist = atr_pct * (3.0 + rng.uniform(-0.5, 1.5))
+            if direction == "BUY":
+                e_p = price + atr * rng.uniform(-0.2, 0.2)
+                sl = e_p * (1 - sl_dist)
+                tp = e_p * (1 + tp_dist)
+            else:
+                e_p = price - atr * rng.uniform(-0.2, 0.2)
+                sl = e_p * (1 + sl_dist)
+                tp = e_p * (1 - tp_dist)
+            entry_price = e_p
+
+        votes.append(ModelVote(
+            model_name=name,
+            direction=direction,
+            confidence=confidence,
+            entry_price=round(entry_price if direction != "HOLD" else 0, 1),
+            stop_loss=round(sl, 1),
+            take_profit=round(tp, 1),
+            reasoning=f"合成: score={buy_score:.2f}, adx={adx:.0f}, rsi={rsi:.0f}",
+            raw_response="[synthetic]",
+        ))
+
+    return votes
+
+
 def build_market_prompt_m15_h1(snapshot_m15: dict, snapshot_h1: dict = None) -> str:
     """将 M15/H1 技术数据构建为 AI 分析师期待的结构化 prompt"""
     from ai_quant_framework.config.prompts import AI1_ANALYST_M15_H1
@@ -190,7 +331,11 @@ def cmd_live(args):
 
     # 1. 加载数据 — MT5真实数据 或 CSV/模拟数据
     df_h1 = None
-    tf_secondary = "H1" if args.interval <= 15 else "H4"
+    # 辅助周期：命令行 > 智能默认
+    if getattr(args, "secondary", None) and args.secondary:
+        tf_secondary = args.secondary
+    else:
+        tf_secondary = config.get("ai", {}).get("secondary_tf", "H1" if args.interval <= 15 else "H4")
 
     if args.mt5:
         # === MT5 真实数据模式 ===
@@ -270,6 +415,24 @@ def cmd_live(args):
 
     # 创建AI集成引擎（复用客户端）
     ensemble = AIEnsemble(config)
+
+    # 可选模块：视觉分析 + 市场情绪（初始化，scheduler不依赖await）
+    use_vision = getattr(args, "vision", False)
+    use_sentiment = getattr(args, "sentiment", False)
+    chart_gen = None
+    _sentiment_obj = None
+    if use_vision:
+        from ai_quant_framework.ai.vision_analyzer import ChartGenerator, VisionAnalyzer
+        chart_gen = ChartGenerator(config)
+        _vision_analyzer = VisionAnalyzer(ensemble)
+        print(f"  [视觉分析] 启用 — 每个决策点将生成K线截图发送给AI")
+    if use_sentiment:
+        from ai_quant_framework.ai.sentiment import SentimentAnalyzer
+        _sentiment_obj = SentimentAnalyzer(config)
+        print(f"  [市场情绪] 启用 — 将抓取经济日历数据注入分析上下文")
+
+    # 情绪上下文（在_run中异步填充）
+    _sentiment_ctx = {}
 
     async def _tick(bar_idx):
         nonlocal capital, peak_capital, position, trades, daily_pnl, current_day, equity_curve
@@ -385,11 +548,32 @@ def cmd_live(args):
 
         equity_curve.append(capital)
 
-        # --- AI 决策 (双周期prompt) ---
-        prompt = build_market_prompt_m15_h1(snapshot, snapshot_h1)
+        # --- AI 决策 (双周期prompt + 可选视觉/情绪) ---
+        base_prompt = build_market_prompt_m15_h1(snapshot, snapshot_h1)
+        prompt = base_prompt
+        if _sentiment_ctx.get("text", ""):
+            prompt = base_prompt + _sentiment_ctx["text"]
+
+        # 视觉分析：生成K线截图供AI看图
+        chart_images = []
+        if chart_gen:
+            try:
+                import base64, io
+                for label, df in [("M15", df_m15), ("H1", df_h1)]:
+                    if df is None or df.empty:
+                        continue
+                    # 取最近100根K线生成截图
+                    buf = chart_gen.render_chart(df.tail(100), title=f"{symbol} {label}", include_volume=True)
+                    if buf:
+                        img_b64 = base64.b64encode(buf.read()).decode("utf-8")
+                        chart_images.append({"label": label, "data": f"data:image/png;base64,{img_b64}"})
+                if chart_images:
+                    print(f"  [视觉分析] 生成 {len(chart_images)} 张K线图")
+            except Exception as e:
+                print(f"  [视觉分析] 图表生成失败: {e}")
 
         try:
-            signal = await ensemble.analyze(prompt)
+            signal = await ensemble.analyze(prompt, chart_images=chart_images if chart_images else None)
         except Exception as e:
             print(f"  [bar {bar_idx}] AI分析失败: {e}")
             return
@@ -566,6 +750,25 @@ def cmd_live(args):
     t_start = datetime.now()
 
     async def _run():
+        nonlocal _sentiment_ctx
+        # 预计算情绪快照（异步，仅一次）
+        _sentiment_ctx = {}
+        if _sentiment_obj:
+            try:
+                events = await asyncio.wait_for(
+                    _sentiment_obj.fetch_economic_calendar(symbol), timeout=10)
+                result = _sentiment_obj.calculate_sentiment_score(events)
+                _sentiment_ctx["text"] = (
+                    f"\n## 市场情绪背景\n"
+                    f"情绪分数: {result['score']} ({result['sentiment']})\n"
+                    f"高风险事件数: {result['high_impact_events']}\n"
+                    f"关键因素: {', '.join(result['factors']) if result['factors'] else '无明显驱动'}\n"
+                )
+                print(f"  [市场情绪] 情绪分={result['score']:.2f}({result['sentiment']}), "
+                      f"高风险事件={result['high_impact_events']}")
+            except Exception as e:
+                print(f"  [市场情绪] 获取失败: {e}")
+
         try:
             for i, bar_idx in enumerate(decision_indices):
                 if i % max(1, total // 20) == 0 and i > 0:
@@ -740,8 +943,9 @@ def _generate_sample_data(bars: int = 2000) -> pd.DataFrame:
 
 def cmd_optimize(args):
     """Walk-Forward参数优化"""
+    strategy_name = getattr(args, "strategy", "trend")
     print("=" * 60)
-    print("  AIQuant Pro - 参数优化模式")
+    print(f"  AIQuant Pro - 参数优化模式 ({strategy_name})")
     print("=" * 60)
 
     config = load_config()
@@ -753,29 +957,100 @@ def cmd_optimize(args):
     de = DataEngine(config)
     df = de.add_indicators(df)
 
-    from ai_quant_framework.strategies.trend_following import TrendFollowingStrategy
     from ai_quant_framework.backtest.walk_forward import WalkForwardOptimizer
-
-    param_grid = {
-        "ema_period": [13, 21, 34, 55, 89, 144],
-        "atr_mult": [1.0, 1.5, 2.0, 2.5, 3.0],
-        "min_rr": [1.0, 1.5, 2.0],
-    }
-
     wfo = WalkForwardOptimizer(config)
-    result = wfo.optimize(df, TrendFollowingStrategy, param_grid, n_windows=5)
 
-    print("\n--- 各窗口结果 ---")
-    for w in result.windows:
-        print(f"  窗口{w['window']}: 训练Sharpe={w['train_sharpe']:.2f} "
-              f"测试Sharpe={w['test_sharpe']:.2f} "
-              f"测试收益={w['test_return_pct']*100:.1f}%")
+    strategies_to_optimize = []
+    if strategy_name == "all":
+        strategies_to_optimize = ["trend", "mean_reversion", "ai_sim"]
+    else:
+        strategies_to_optimize = [strategy_name]
 
-    print(f"\n--- 最优参数 ---")
-    for k, v in result.optimal_params.items():
-        print(f"  {k}: {v}")
-    print(f"\n稳健性评分: {result.robustness_score}/100")
-    print(f"参数稳定性: {result.param_stability}/100")
+    all_results = {}
+    for strat_name in strategies_to_optimize:
+        if strat_name == "trend":
+            from ai_quant_framework.strategies.trend_following import TrendFollowingStrategy
+            StrategyClass = TrendFollowingStrategy
+            param_grid = {
+                "ema_period": [13, 21, 34, 55, 89, 144],
+                "atr_mult": [1.0, 1.5, 2.0, 2.5, 3.0],
+                "min_rr": [1.0, 1.5, 2.0],
+            }
+            print(f"\n{'='*40}\n  优化趋势跟随策略\n{'='*40}")
+        elif strat_name == "mean_reversion":
+            from ai_quant_framework.strategies.mean_reversion import MeanReversionStrategy
+            StrategyClass = MeanReversionStrategy
+            param_grid = {
+                "lookback": [5, 10, 15, 20],
+                "entry_threshold": [0.8, 1.0, 1.2, 1.5],
+                "exit_threshold": [0.1, 0.2, 0.3],
+            }
+            print(f"\n{'='*40}\n  优化均值回归策略\n{'='*40}")
+        elif strat_name == "ai_sim":
+            # AI仿真: 使用合成投票的grid search不同信号融合参数
+            from ai_quant_framework.core.signal_engine import SignalEngine
+            signal_engine = SignalEngine(config)
+            # 对不同min_confidence/min_models_agree组合做grid search
+            min_conf_opts = [40, 50, 60, 70]
+            min_agree_opts = [2, 3, 4]
+            print(f"\n{'='*40}\n  优化AI仿真融合参数\n{'='*40}")
+            print(f"  测试组合: min_conf={min_conf_opts}, min_agree={min_agree_opts}")
+            best_sharpe = -999
+            best_params = {}
+            for mc in min_conf_opts:
+                for ma in min_agree_opts:
+                    signal_engine.min_confidence = mc
+                    signal_engine.min_models_agree = ma
+                    ai_signals = pd.Series(0, index=df.index, dtype=int)
+                    for bar_idx in range(100, len(df)):
+                        row = df.iloc[bar_idx]
+                        snapshot = {
+                            "price": row["close"], "ema": row["ema"],
+                            "ema_slope": row.get("ema_slope", 0),
+                            "adx": row.get("adx", 0), "atr": row.get("atr", 10),
+                            "rsi": row.get("rsi", 50), "close": row["close"],
+                        }
+                        votes = _generate_synthetic_votes(config, snapshot)
+                        fused = signal_engine.fuse_votes(votes)
+                        if fused.is_trade_signal:
+                            ai_signals.iloc[bar_idx] = 1 if fused.direction == "BUY" else -1
+                    from ai_quant_framework.backtest.engine import BacktestEngine
+                    be = BacktestEngine(config)
+                    r = be.run(df, ai_signals, df["atr"] if "atr" in df.columns else None)
+                    if r.sharpe_ratio > best_sharpe:
+                        best_sharpe = r.sharpe_ratio
+                        best_params = {"min_confidence": mc, "min_models_agree": ma, "sharpe": r.sharpe_ratio}
+                    print(f"    conf={mc} agree={ma} → Sharpe={r.sharpe_ratio:.2f}")
+            print(f"\n  最优AI仿真参数: {best_params}")
+            all_results[strat_name] = best_params
+            continue  # AI-sim already handled above
+
+        result = wfo.optimize(df, StrategyClass, param_grid, n_windows=5)
+
+        print("\n--- 各窗口结果 ---")
+        for w in result.windows:
+            print(f"  窗口{w['window']}: 训练Sharpe={w['train_sharpe']:.2f} "
+                  f"测试Sharpe={w['test_sharpe']:.2f} "
+                  f"测试收益={w['test_return_pct']*100:.1f}%")
+
+        print(f"\n--- 最优参数 ---")
+        for k, v in result.optimal_params.items():
+            print(f"  {k}: {v}")
+        print(f"\n稳健性评分: {result.robustness_score}/100")
+        print(f"参数稳定性: {result.param_stability}/100")
+        all_results[strat_name] = result
+
+    if strategy_name == "all":
+        print("\n" + "=" * 60)
+        print("  全部策略对比")
+        print("=" * 60)
+        for name, r in all_results.items():
+            label = {"trend": "趋势跟随", "mean_reversion": "均值回归", "ai_sim": "AI仿真"}.get(name, name)
+            if isinstance(r, dict) and "sharpe" in r:
+                print(f"  {label}: Sharpe={r['sharpe']:.2f}, "
+                      f"conf={r['min_confidence']}, agree={r['min_models_agree']}")
+            elif hasattr(r, "robustness_score"):
+                print(f"  {label}: 稳健性={r.robustness_score}/100, 稳定性={r.param_stability}/100")
     print("=" * 60)
 
 
@@ -802,6 +1077,8 @@ def main():
 
     p_bt = subparsers.add_parser("backtest", help="运行离线回测")
     p_bt.add_argument("-b", "--bars", type=int, default=2000, help="K线数量")
+    p_bt.add_argument("--ai-sim", action="store_true", default=False,
+                       help="AI仿真模式: 用合成投票模拟AI决策(不调用API, 速度快)")
 
     p_live = subparsers.add_parser("live", help="启动实时AI决策回测")
     p_live.add_argument("-d", "--days", type=int, default=30, help="数据天数 (MT5模式拉取历史数据, CSV模式生成模拟数据)")
@@ -811,11 +1088,20 @@ def main():
                         help="从MT5真实账户拉取历史数据 (双周期M15+H1分析)")
     p_live.add_argument("--delay", type=float, default=0.0,
                         help="每决策点间隔延迟(秒, 默认0, 建议1.0以上避免限流)")
+    p_live.add_argument("--secondary", type=str, default=None,
+                        help="辅助时间周期 (如 H1, H4, D1, 默认自动选择)")
+    p_live.add_argument("--vision", action="store_true", default=False,
+                        help="启用视觉分析: 生成K线截图发送给AI看图决策")
+    p_live.add_argument("--sentiment", action="store_true", default=False,
+                        help="启用市场情绪分析: 抓取经济日历数据注入分析上下文")
 
     p_dash = subparsers.add_parser("dashboard", help="启动Web监控面板")
 
     p_opt = subparsers.add_parser("optimize", help="Walk-Forward参数优化")
     p_opt.add_argument("-b", "--bars", type=int, default=3000, help="K线数量")
+    p_opt.add_argument("-s", "--strategy", type=str, default="trend",
+                        choices=["trend", "mean_reversion", "ai_sim", "all"],
+                        help="要优化的策略类型 (默认trend)")
 
     p_stat = subparsers.add_parser("status", help="查看系统状态")
 
