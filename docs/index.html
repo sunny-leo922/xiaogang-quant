@@ -54,6 +54,14 @@
     backdrop-filter:blur(20px) saturate(180%);
     background:rgba(2,6,23,.88);border-bottom:1px solid rgba(30,41,59,.5);
   }
+  .nav::after{
+    content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent 0%,#38BDF8 20%,var(--gold) 50%,#38BDF8 80%,transparent 100%);
+    opacity:.85;border-radius:1px;
+    box-shadow:0 0 8px rgba(56,189,248,.45),0 0 16px rgba(245,158,11,.25);
+    animation:scan-nav 2.2s ease-in-out infinite;
+  }
+  @keyframes scan-nav{0%,100%{opacity:.45;filter:blur(.5px)}50%{opacity:1;filter:blur(0)}}
   .nav-inner{
     max-width:1200px;margin:0 auto;display:flex;align-items:center;
     justify-content:space-between;height:64px;padding:0 24px;
@@ -89,6 +97,14 @@
   .sec-title{
     font-family:var(--font-heading);font-size:clamp(1.7rem,4vw,2.4rem);
     font-weight:700;line-height:1.2;letter-spacing:-.015em;margin-bottom:14px;
+    position:relative;
+  }
+  .sec-title.tac::after{
+    content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+    width:80px;height:3px;border-radius:2px;
+    background:linear-gradient(90deg,var(--blue),var(--gold),var(--purple));
+    opacity:.75;
+    box-shadow:0 0 10px rgba(56,189,248,.35),0 0 18px rgba(245,158,11,.2);
   }
   .sec-desc{font-size:1.02rem;color:var(--fg-muted);max-width:600px;line-height:1.7;margin-bottom:52px}
   .tac{text-align:center;margin-left:auto;margin-right:auto}
@@ -100,12 +116,14 @@
     padding:120px 24px 80px;position:relative;overflow:hidden;
   }
   .hero-grid-bg{
-    position:absolute;inset:0;opacity:.035;
-    background-image:linear-gradient(rgba(56,189,248,.5) 1px,transparent 1px),
-                     linear-gradient(90deg,rgba(56,189,248,.5) 1px,transparent 1px);
-    background-size:60px 60px;
-    mask-image:radial-gradient(ellipse at 50% 50%,black 30%,transparent 70%);
+    position:absolute;inset:0;opacity:.08;
+    background-image:linear-gradient(rgba(56,189,248,.55) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(56,189,248,.55) 1px,transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse at 50% 50%,black 45%,transparent 80%);
+    animation:grid-pulse 6s ease-in-out infinite;
   }
+  @keyframes grid-pulse{0%,100%{opacity:.06}50%{opacity:.14}}
   .hero-orb{
     position:absolute;width:620px;height:620px;border-radius:50%;
     background:radial-gradient(circle,rgba(245,158,11,.13) 0%,transparent 70%);
@@ -134,10 +152,13 @@
   .hero h1{
     font-family:var(--font-heading);font-size:clamp(2.3rem,5.5vw,3.6rem);
     font-weight:700;line-height:1.08;letter-spacing:-.025em;margin-bottom:22px;
+    text-shadow:0 0 30px rgba(56,189,248,.12),0 0 60px rgba(245,158,11,.08);
   }
   .hero h1 .grad{
-    background:linear-gradient(135deg,var(--gold) 0%,var(--blue) 100%);
+    background:linear-gradient(135deg,var(--gold) 0%,var(--blue) 60%,#22D3EE 100%);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    text-shadow:none;
+    filter:drop-shadow(0 0 18px rgba(56,189,248,.15));
   }
   .hero p{font-size:1.08rem;color:var(--fg-muted);max-width:540px;margin:0 auto 40px;line-height:1.7}
   .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
@@ -145,8 +166,14 @@
     font-family:var(--font-heading);font-size:.92rem;font-weight:600;
     padding:13px 30px;border-radius:var(--radius);border:none;cursor:pointer;
     display:inline-flex;align-items:center;gap:10px;transition:all var(--transition);
-    text-decoration:none;
+    text-decoration:none;position:relative;overflow:hidden;
   }
+  .btn::after{
+    content:'';position:absolute;top:0;left:-100%;width:80%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(56,189,248,.18),rgba(255,255,255,.22),rgba(56,189,248,.18),transparent);
+    transform:skewX(-20deg);transition:left .55s ease;
+  }
+  .btn:hover::after{left:140%}
   .btn-gold{background:var(--gold);color:#000}
   .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,158,11,.35)}
   .btn-ghost{background:rgba(255,255,255,.04);color:var(--fg);border:1px solid var(--border)}
@@ -170,10 +197,10 @@
   .card::before{
     content:'';position:absolute;top:0;left:0;right:0;height:2px;
     background:linear-gradient(90deg,transparent,var(--gold),transparent);
-    opacity:0;transition:opacity .25s;
+    opacity:.55;transition:opacity .25s;
   }
-  .card:hover{transform:translateY(-3px);border-color:rgba(245,158,11,.25);box-shadow:0 10px 35px rgba(0,0,0,.3)}
-  .card:hover::before{opacity:1}
+  .card:hover{transform:translateY(-3px);border-color:rgba(245,158,11,.35);box-shadow:0 10px 35px rgba(0,0,0,.35),0 0 25px rgba(245,158,11,.06)}
+  .card:hover::before{opacity:1;box-shadow:0 0 10px rgba(245,158,11,.35)}
   .card-icon{
     width:44px;height:44px;border-radius:var(--radius);
     background:var(--gold-soft);display:flex;align-items:center;justify-content:center;
@@ -199,7 +226,11 @@
 
   /* ── Architecture ── */
   .arch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;max-width:1000px;margin:40px auto 0}
-  .arch-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center}
+  .arch-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center;position:relative;overflow:hidden;transition:transform .25s,border-color .25s}
+  .arch-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:.5}
+  .arch-box:hover{transform:translateY(-3px);border-color:rgba(56,189,248,.25);box-shadow:0 10px 35px rgba(0,0,0,.3),0 0 22px rgba(56,189,248,.06)}
+  .arch-box.highlight::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
+  .arch-box.highlight:hover{border-color:rgba(245,158,11,.35);box-shadow:0 10px 35px rgba(0,0,0,.3),0 0 22px rgba(245,158,11,.08)}
   .arch-box h4{font-family:var(--font-heading);font-size:1.05rem;margin-bottom:8px}
   .arch-box p{font-size:.84rem;color:var(--fg-muted);line-height:1.6}
   .arch-box.highlight{border-color:rgba(245,158,11,.35);background:linear-gradient(180deg,rgba(245,158,11,.04) 0%,var(--bg-card) 35%)}
@@ -213,9 +244,13 @@
     border-radius:var(--radius-xl);padding:36px 30px;
     display:flex;flex-direction:column;position:relative;
     transition:transform .25s,border-color .25s;
+    overflow:hidden;
   }
-  .price-card:hover{transform:translateY(-4px)}
+  .price-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:.5}
+  .price-card:hover{transform:translateY(-4px);border-color:rgba(56,189,248,.25);box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 25px rgba(56,189,248,.06)}
   .price-card.featured{border-color:var(--gold);background:linear-gradient(180deg,rgba(245,158,11,.05) 0%,var(--bg-card) 30%)}
+  .price-card.featured::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.75;box-shadow:0 0 10px rgba(245,158,11,.25)}
+  .price-card.featured:hover{box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 28px rgba(245,158,11,.08)}
   .price-card.featured::after{
     content:'最受欢迎';position:absolute;top:14px;right:14px;
     font-size:.72rem;font-weight:600;color:#000;background:var(--gold);
@@ -251,9 +286,11 @@
   .trust-card{
     background:var(--bg-card);border:1px solid var(--border);
     border-radius:var(--radius-xl);padding:36px 28px;text-align:center;
+    position:relative;overflow:hidden;
     transition:.25s
   }
-  .trust-card:hover{transform:translateY(-3px)}
+  .trust-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--purple),transparent);opacity:.45}
+  .trust-card:hover{transform:translateY(-3px);border-color:rgba(139,92,246,.25);box-shadow:0 10px 35px rgba(0,0,0,.3),0 0 22px rgba(139,92,246,.05)}
   .trust-card .t-icon{width:48px;height:48px;border-radius:50%;margin:0 auto 16px;
     background:var(--gold-soft);display:flex;align-items:center;justify-content:center;color:var(--gold)}
   .trust-card .t-icon svg{width:24px;height:24px}
@@ -593,37 +630,37 @@
 
     <div class="faq-list reveal">
       <div class="faq-item open">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        <button class="faq-q">
           需要会编程吗？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
         <div class="faq-a"><div class="faq-a-inner">不需要。内置预设策略和模型配置，开箱即用。如果你懂编程，可以深度自定义Prompt、策略逻辑和模型组合。</div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        <button class="faq-q">
           支持哪些交易品种？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
         <div class="faq-a"><div class="faq-a-inner">当前主攻 XAUUSD（黄金）。黄金趋势性强、流动性好，是AI量化交易最适合的品种之一。更多品种持续扩展中。</div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        <button class="faq-q">
           AI调用的Token成本？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
         <div class="faq-a"><div class="faq-a-inner">每笔分析约消耗数百Token，月成本通常在几十元以内。我们还提供独立的API中转站服务，比官方价格更低。</div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        <button class="faq-q">
           和传统EA有什么区别？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
         <div class="faq-a"><div class="faq-a-inner">传统EA是固定规则的if-else机械执行。我们是让AI真正"看K线图"做分析决策，理解市场语境而非死守参数。</div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        <button class="faq-q">
           可以在自己电脑上跑吗？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
         <div class="faq-a"><div class="faq-a-inner">可以。只要电脑开着MT5就能运行。建议使用VPS实现24小时不间断运行，专业版提供一键部署方案。</div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        <button class="faq-q">
           效果怎么样？<span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
         </button>
         <div class="faq-a"><div class="faq-a-inner">我们不承诺收益。AI的决策质量取决于市场状态和模型能力。建议先通过内置回测+Walk-Forward+Monte Carlo充分验证后再小额实盘试用。</div></div>
