@@ -237,6 +237,31 @@
 .arch-icon{width:48px;height:48px;border-radius:50%;margin:0 auto 16px;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;color:var(--gold)}
 .arch-icon svg{width:24px;height:24px}
 
+  /* ── Pricing Toggle ── */
+  .pricing-toggle{
+    display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;
+  }
+  .pricing-toggle .toggle-label{
+    font-size:.88rem;font-weight:500;color:var(--fg-dim);cursor:pointer;transition:color .25s;
+  }
+  .pricing-toggle .toggle-label.active{color:var(--fg);font-weight:600}
+  .pricing-toggle .toggle-switch{
+    position:relative;width:50px;height:28px;background:var(--border);
+    border-radius:14px;border:none;cursor:pointer;transition:background .3s;padding:0;
+  }
+  .pricing-toggle .toggle-switch.yearly{background:var(--gold)}
+  .pricing-toggle .toggle-thumb{
+    position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;
+    border-radius:50%;transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+  }
+  .pricing-toggle .toggle-switch.yearly .toggle-thumb{transform:translateX(22px)}
+  .pricing-toggle .toggle-save{
+    font-size:.78rem;font-weight:600;color:var(--gold);background:rgba(245,158,11,.1);
+    padding:3px 10px;border-radius:100px;margin-left:4px;opacity:0;transform:translateX(-6px);
+    transition:opacity .3s,transform .3s;pointer-events:none;
+  }
+  .pricing-toggle .toggle-save.show{opacity:1;transform:translateX(0)}
+
   /* ── Pricing ── */
   .price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;align-items:stretch}
   .price-card{
@@ -256,6 +281,11 @@
     font-size:.72rem;font-weight:600;color:#000;background:var(--gold);
     padding:4px 12px;border-radius:100px;
   }
+  .price-card.featured.yearly-best::after{
+    content:'最划算';position:absolute;top:14px;right:14px;
+    font-size:.72rem;font-weight:600;color:#000;background:var(--gold);
+    padding:4px 12px;border-radius:100px;
+  }
   .price-card .plan-name{font-family:var(--font-heading);font-size:1.1rem;font-weight:600;margin-bottom:4px}
   .price-card .plan-desc{font-size:.82rem;color:var(--fg-muted);margin-bottom:22px}
   .price-card .plan-price{
@@ -263,7 +293,15 @@
     margin-bottom:6px;
   }
   .price-card .plan-price sub{font-size:.9rem;font-weight:400;color:var(--fg-dim)}
+  .price-card .plan-price .price-num{transition:all .3s}
   .price-card .plan-period{font-size:.82rem;color:var(--fg-dim);margin-bottom:22px}
+  .price-card .plan-period .yearly-save{
+    display:inline-block;color:var(--gold);font-size:.75rem;font-weight:600;
+    background:rgba(245,158,11,.12);padding:2px 8px;border-radius:100px;margin-left:8px;
+  }
+  .price-card .plan-price-save{
+    font-size:.78rem;color:var(--green);font-weight:500;margin-top:-2px;margin-bottom:8px;
+  }
   .price-card .plan-feats{list-style:none;flex:1;margin-bottom:24px}
   .price-card .plan-feats li{
     display:flex;align-items:center;gap:8px;padding:7px 0;
@@ -534,6 +572,16 @@
     <h2 class="sec-title tac">透明定价，无隐形收费</h2>
     <p class="sec-desc tac">从免费体验到专业配置，找到适合你的方案。所有方案均包含三审AI架构。</p>
 
+    <!-- Month/Year Toggle -->
+    <div class="pricing-toggle reveal">
+      <span class="toggle-label active" data-period="monthly" onclick="switchPricing('monthly')">月付</span>
+      <button class="toggle-switch" id="pricingToggle" onclick="switchPricing(event)" aria-label="切换月付/年付">
+        <span class="toggle-thumb"></span>
+      </button>
+      <span class="toggle-label" data-period="yearly" onclick="switchPricing('yearly')">年付</span>
+      <span class="toggle-save" id="yearlySaveBadge">省 ¥1,089</span>
+    </div>
+
     <div class="price-grid reveal">
       <!-- Free -->
       <div class="price-card">
@@ -552,11 +600,12 @@
       </div>
 
       <!-- Professional -->
-      <div class="price-card featured">
+      <div class="price-card featured" id="proCard">
         <div class="plan-name">专业版</div>
         <div class="plan-desc">严肃交易者的选择</div>
-        <div class="plan-price">299<sub>元</sub></div>
-        <div class="plan-period">/ 月</div>
+        <div class="plan-price"><span class="price-num" id="proPrice">299</span><sub>元</sub></div>
+        <div class="plan-period"><span id="proPeriod">/ 月</span><span class="yearly-save" id="proYearlySave" style="display:none">立省 ¥1,089</span></div>
+        <div class="plan-price-save" id="proPriceNote" style="display:none">相当于 ¥208/月</div>
         <ul class="plan-feats">
           <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>全部体验版功能</li>
           <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>Walk-Forward 策略优化</li>
@@ -565,7 +614,7 @@
           <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>多模型自由组合</li>
           <li><span class="chk"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></span>VPS 一键部署方案</li>
         </ul>
-        <a href="#cta" class="plan-btn gold">立即开通</a>
+        <a href="#cta" class="plan-btn gold" id="proBtn">立即开通</a>
       </div>
 
       <!-- Enterprise -->
@@ -747,6 +796,51 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') })
   }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' })
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+}
+
+// ── Pricing Toggle ──
+let pricingPeriod = 'monthly'
+function switchPricing(arg) {
+  const next = typeof arg === 'string' ? arg : (pricingPeriod === 'monthly' ? 'yearly' : 'monthly')
+  if (next === pricingPeriod) return
+  pricingPeriod = next
+
+  const isYearly = pricingPeriod === 'yearly'
+  const toggleBtn = document.getElementById('pricingToggle')
+  const saveBadge = document.getElementById('yearlySaveBadge')
+  const labels = document.querySelectorAll('.pricing-toggle .toggle-label')
+
+  // Toggle switch
+  if (isYearly) { toggleBtn.classList.add('yearly') } else { toggleBtn.classList.remove('yearly') }
+
+  // Label active states
+  labels.forEach(l => {
+    l.classList.toggle('active', l.dataset.period === pricingPeriod)
+  })
+
+  // Save badge
+  saveBadge.classList.toggle('show', isYearly)
+
+  // Pro card: price / period / save note
+  const proPrice = document.getElementById('proPrice')
+  const proPeriod = document.getElementById('proPeriod')
+  const proYearlySave = document.getElementById('proYearlySave')
+  const proPriceNote = document.getElementById('proPriceNote')
+  const proCard = document.getElementById('proCard')
+
+  if (isYearly) {
+    proPrice.textContent = '2499'
+    proPeriod.textContent = '/ 年'
+    proYearlySave.style.display = 'inline-block'
+    proPriceNote.style.display = 'block'
+    proCard.classList.add('yearly-best')
+  } else {
+    proPrice.textContent = '299'
+    proPeriod.textContent = '/ 月'
+    proYearlySave.style.display = 'none'
+    proPriceNote.style.display = 'none'
+    proCard.classList.remove('yearly-best')
+  }
 }
 </script>
 </body>
